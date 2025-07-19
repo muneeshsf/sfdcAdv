@@ -1,0 +1,49 @@
+@echo off
+setlocal enabledelayedexpansion
+
+:: 🔐 HARDCODED CONFIGURATION
+set ACCESS_TOKEN=YOUR_ACCESS_TOKEN_HERE
+set INSTANCE_URL=https://yourInstance.salesforce.com
+set IDS_FILE=C:\Path\To\Your\ids.txt
+set DOWNLOAD_FOLDER=C:\Path\To\Your\Download\Folder
+
+:: Ensure download folder exists
+if not exist "%DOWNLOAD_FOLDER%" (
+    echo Creating folder: %DOWNLOAD_FOLDER%
+    mkdir "%DOWNLOAD_FOLDER%"
+)
+
+:: Start processing each ContentVersion ID
+set i=1
+for /f "usebackq tokens=*" %%c in ("%IDS_FILE%") do (
+    set ID=%%c
+    echo.
+    echo [!i!] Processing ID: !ID!
+
+    curl -s -X GET "%INSTANCE_URL%/services/data/v64.0/sobjects/ContentVersion/!ID!" ^
+        -H "Authorization: Bearer %ACCESS_TOKEN%" -H "Content-Type: application/json" > metadata.json
+
+    for /f "tokens=2 delims=:," %%t in ('findstr /c:"\"Title\"" metadata.json') do set TITLE=%%~t
+    for /f "tokens=2 delims=:," %%f in ('findstr /c:"\"FileExtension\"" metadata.json') do set EXT=%%~f
+    for /f "tokens=2 delims=:," %%v in ('findstr /c:"\"VersionData\"" metadata.json') do set VERSIONDATA=%%~v
+
+    set TITLE=!TITLE:"=!
+    set TITLE=!TITLE: =!
+    set EXT=!EXT:"=!
+    set VERSIONDATA=!VERSIONDATA:"=!
+
+    set FILENAME=!TITLE!.!EXT!
+    set FILEPATH=%DOWNLOAD_FOLDER%\!FILENAME!
+    set DOWNLOAD_URL=%INSTANCE_URL%!VERSIONDATA!
+
+    echo 🔽 Downloading: !FILENAME!
+    curl -s -X GET "!DOWNLOAD_URL!" -H "Authorization: Bearer %ACCESS_TOKEN%" -o "!FILEPATH!"
+
+    echo ✅ Saved to: !FILEPATH!
+    del metadata.json
+    set /a i=!i!+1
+)
+
+echo.
+echo 🎉 All files downloaded to: %DOWNLOAD_FOLDER%
+pause
