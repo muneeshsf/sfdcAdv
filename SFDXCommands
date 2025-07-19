@@ -1,16 +1,6 @@
 sfdx force:org:display --target-org metaprod --verbose
 
- Access Token     00DA0000000K9kF!AQYAQI.9DhpsVcFkj4upzOBY23HzaQCI0ESnoroEj5_gsJ03iJB.lCEEQRLxS_Dm3ZVpDvrheHK0Y24CUNbSL4SR.069w1oU
- Alias            metaprd
- Api Version      64.0
- Client Id        PlatformCLI
- Connected Status Connected
- Id               00DA0000000K9kFMAS
- Instance Url     https://fb.my.salesforce.com
- Sfdx Auth Url    force://PlatformCLI::5Aep861Yij7AXt5Ce7kZ20dcSgXyVEqDtmQMsPzOGV.DPwOLxR7S9__EVtwN2OD14Or1grDrJYYtTR6D6_k2x3h@fb.my.salesforce.com
- Username         bhallamuneesh@meta.com
- 
- 
+  
 
 sfdx force:data:soql:query -q "select count(Email_of_Meta_Contact__c) from Lead" -r csv > c:\muneesh\lead_Email_of_Meta_Contact__c.csv
 
