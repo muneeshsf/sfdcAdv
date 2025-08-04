@@ -1,0 +1,763 @@
+============Code2DeleteCustomMetaData==================
+MetadataService.MetadataPort service = new MetadataService.MetadataPort();
+service.SessionHeader = new MetadataService.SessionHeader_element();
+service.SessionHeader.sessionId = UserInfo.getSessionId();
+List<String> recordsToDelete = new List<String>();
+for (Pricing_Intelligence_Default__mdt obj : [SELECT DeveloperName FROM Pricing_Intelligence_Default__mdt limit 100])
+{
+    recordsToDelete.add('Pricing_Intelligence_Default__mdt.'+obj.DeveloperName);
+}
+system.debug('Count : '+ recordsToDelete[0]);
+service.deleteMetadata('CustomMetadata', recordsToDelete);
+
+Users with a permission set
+
+select Assignee.Name,Assignee.Id, PermissionSet.Name
+from PermissionSetAssignment where permissionSet.id='0PS1J000000W2aBWAS'
+order by Assignee.Name, PermissionSet.Name
+
+GET ALL PROFILES WHERE FOR A GIVEN ADMINISTRATIVE PERMISSION.
+select name from Profile where PermissionsLightningExperienceUser=true
+
+
+Below are some useful scripts
+
+AccountsIdsFromSUCN   ApexCode
+
+Set<String> setString = new Set<String>();  
+for (Xref_Temp__c xf : [select TextField__c from Xref_Temp__c where type__c='SUCN' ])
+{
+  setString.add(xf.TextField__c) ;   
+}
+String s = '';
+integer kk=0;
+for (Account ac : [select id,SUCN__c,Account_UCN__c from account where SUCN__c in  :setString ])
+{
+    if (ac.SUCN__c==ac.Account_UCN__c)
+    {
+       s +=ac.id + '\n'; 
+        kk=kk+1;
+    }
+}
+system.debug('===== Count : '+ kk);
+
+Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
+blob csvBlob = Blob.valueOf(s);
+            string csvname=  'UPD_PROD_AccountIdsForSUCN'+'.csv';
+            csvAttc.setFileName(csvname);
+            csvAttc.setBody(csvBlob);
+            Messaging.SingleEmailMessage email =new Messaging.SingleEmailMessage();
+            String[] toAddresses = new list<string> {UserInfo.getUserEmail()};
+            String subject ='Updated PROD AccountIdsForSUCN';
+           email.setSubject(subject);
+            email.setToAddresses( toAddresses );
+            email.setPlainTextBody(subject);
+            email.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
+            Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[] {email});
+
+=========================
+Set<String> setString = new Set<String>();  
+for (Xref_Temp__c xf : [select TextField__c from Xref_Temp__c where type__c='SUCN' ])
+{
+  setString.add(xf.TextField__c) ;   
+}
+String s = '';
+Set<Id> setIds = new Set<Id>();  
+integer kk=0;
+for (Account ac : [select id,SUCN__c,Account_UCN__c from account where SUCN__c in  :setString ])
+{
+    if (ac.SUCN__c==ac.Account_UCN__c)
+    {
+       s +=ac.id + '\n'; 
+        kk=kk+1;
+        setIds.add(ac.id);
+    }
+}
+system.debug('===== Count : '+ kk);
+system.debug('===== SetSize : '+ setIds.size());
+
+Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
+blob csvBlob = Blob.valueOf(s);
+            string csvname=  'UPD_PROD_AccountIdsForSUCN'+'.csv';
+            csvAttc.setFileName(csvname);
+            csvAttc.setBody(csvBlob);
+            Messaging.SingleEmailMessage email =new Messaging.SingleEmailMessage();
+            String[] toAddresses = new list<string> {UserInfo.getUserEmail()};
+            String subject ='Updated PROD AccountIdsForSUCN';
+           email.setSubject(subject);
+            email.setToAddresses( toAddresses );
+            email.setPlainTextBody(subject);
+            email.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
+            Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[] {email});
+
+Looks like SUCN numbers are duplicate.
+
+Set<String> setString = new Set<String>();  
+for (Xref_Temp__c xf : [select TextField__c from Xref_Temp__c where type__c='SUCN' ])
+{
+  setString.add(xf.TextField__c) ;   
+}
+List<Account> lstAccnts= [select id,SUCN__c,Account_UCN__c from account where SUCN__c in  :setString ];
+ Map<String,Account> mapStrByAccnt=new Map<String,Account>();
+for(Account actone:lstAccnts){
+    mapStrByAccnt.put(actone.SUCN__c,actone);//This is map and hence it will always have unique values 
+}
+
+system.debug('List return'+mapStrByAccnt.size());
+
+3157
+
+
+============================
+  
+  select id,AssigneeId, PermissionSetId,PermissionSet.name from PermissionSetAssignment  where   AssigneeId in 
+('0051J000006QgxAQAS')
+  
+  
+select id,(select id from PermissionSetAssignments) from user where id='005o00000042qHjAAI'
+
+
+PermissionSetLicenseAssign
+
+select id,name,profile.name from user where profile.name in ('Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast','Custom: Sales Engineer')
+and IsActive =true and id not in (select AssigneeId from PermissionSetAssignment FROM PermissionSetAssignment  where PermissionSetId ='0PS2T000000023V')
+
+005o00000042qHj
+select id,AssigneeId, PermissionSet.License.Id from PermissionSetAssignment  where PermissionSet.License.Id='0PS2T00000003OaWAI' 
+
+Package package
+0051J000006QgxA
+
+select id,AssigneeId, PermissionSetLicenseId from PermissionSetAssignment  where PermissionSetLicenseId='0PS1J000000RTf4WAG' and AssigneeId in 
+
+
+VERY GOOD
+SELECT Name,
+            (
+                SELECT
+                    SObjectType,
+                    Field,
+                    PermissionsRead,
+                    PermissionsEdit
+                FROM FieldPerms
+            ),
+            (
+                SELECT
+                    SObjectType,
+                    PermissionsRead,
+                    PermissionsCreate,
+                    PermissionsEdit,
+                    PermissionsDelete,
+                    PermissionsViewAllRecords,
+                    PermissionsModifyAllRecords
+                FROM ObjectPerms
+            ),
+            (
+                SELECT SetupEntityId, SetupEntityType
+                FROM SetupEntityAccessItems
+            )
+        FROM PermissionSet WHERE Id IN (
+            SELECT PermissionSetId
+            FROM PermissionSetAssignment
+            WHERE AssigneeId = '005o0000003CYggAAG'
+        )
+
+
+
+
+For Profiles
+SELECT Id,Parent.IsOwnedByProfile,Parent.profile.name,ParentId,PermissionsCreate,PermissionsDelete,PermissionsEdit,PermissionsModifyAllRecords,
+PermissionsRead,PermissionsViewAllRecords,SobjectType,SystemModstamp FROM ObjectPermissions
+where Parent.IsOwnedByProfile=true  
+
+For Permission Sets
+SELECT Id,Parent.IsOwnedByProfile,Parent.Name,LastModifiedDate,ParentId,PermissionsCreate,PermissionsDelete,PermissionsEdit,PermissionsModifyAllRecords,
+PermissionsRead,PermissionsViewAllRecords,SobjectType,SystemModstamp FROM ObjectPermissions
+where Parent.IsOwnedByProfile=false
+order by LastModifiedDate desc
+
+Here is the SOQL for  FLS Data.
+SELECT Id, Field, SObjectType, PermissionsRead, PermissionsEdit FROM FieldPermissions
+ 
+SELECT Id, Field, SObjectType, PermissionsRead, PermissionsEdit 
+FROM fieldPermissions  
+WHERE SObjectType = 'Opportunity'  AND parentId in ( SELECT id   FROM permissionSet 
+                  WHERE PermissionSet.Profile.Name = 'System Administrator')
+
+http://www.sfdccloudninja.com/admin/who-has-what-permissions/
+
+SELECT AssigneeId,Assignee.name FROM PermissionSetAssignment WHERE PermissionSet.name= 'Leadership_Access_to_Bookings_Object'
+
+https://developer.salesforce.com/blogs/engineering/2012/06/using-soql-to-determine-your-users-permissions-2.html
+
+Profiles having ModifyAll permissions
+
+SELECT Parent.profile.name,SobjectType FROM ObjectPermissions
+where Parent.IsOwnedByProfile=true   and PermissionsModifyAllRecords=true
+and Parent.profile.name not in ('Custom: CRM Analyst/Territory Admin','Custom: Integration Admin','Custom: Integration User','System Administrator','Custom: PDM Pricing Team Admin')
+order by Parent.profile.name,SobjectType
+
+
+As a result, running the following query in SOQL will return both permission sets you’ve created and permission sets parented by a profile:
+
+SELECT Id,IsOwnedByProfile,Label
+FROM PermissionSet
+By adding IsOwnedByProfile to the WHERE clause, you will quickly differentiate between permission sets you’ve created versus those parented by a profile:
+
+SELECT Id,IsOwnedByProfile,Label
+FROM PermissionSet
+WHERE IsOwnedByProfile = TRUE
+
+Once you have the hang of this, you can start to answer all sorts of questions about your users such as, “which users have Read on Accounts and why”:
+
+SELECT Assignee.Name, PermissionSet.Id, PermissionSet.isOwnedByProfile, PermissionSet.Profile.Name, PermissionSet.Label
+FROM PermissionSetAssignment
+WHERE PermissionSetId
+IN (SELECT ParentId FROM ObjectPermissions
+WHERE SObjectType = 'Account' AND PermissionsRead = true)
+You might need to answer questions about a specific user such as, “what are all of the Account fields where John Doe has at least Read access and why”
+
+SELECT Id, SObjectType, PermissionsRead, Parent.label, Parent.IsOwnedByProfile
+FROM ObjectPermissions
+WHERE (ParentId IN (SELECT PermissionSetId
+FROM PermissionSetAssignment
+WHERE Assignee.Name = 'John Doe'))  AND  (PermissionsRead = true)
+AND
+(SobjectType = 'Account')
+
+Using permission sets in this way, you can find out why a user has access to an apex page, class or a particular user, object, or field permission, regardless of whether it’s through their profile or permission set.
+
+These SOQL queries are great if you have one off questions about your user’s permissions. If you have a more regular need to query user’s permissions, think about creating a Visualforce page with an Apex controller that uses these queries to find out what your users can do and why.
+==========================
+SELECT PermissionSet.Name PermissionSetName, Assignee.Profile.Name UserProfile, COUNT(AssigneeId)
+FROM PermissionSetAssignment
+WHERE PermissionSet.name= 'Leadership_Access_to_Bookings_Object'
+GROUP BY cube (PermissionSet.Name, Assignee.Profile.Name)
+ORDER BY PermissionSet.Name DESC NULLS LAST, Assignee.Profile.Name DESC NULLS LAST
+
+SELECT PermissionSet.Name, Assignee.Id, Assignee.Name, Assignee.ProfileId,Assignee.Profile.name
+FROM PermissionSetAssignment
+WHERE permissionset.Name IN ('PS_For_AttachmentsNotesMigrator')
+ORDER BY Assignee.Profile.name
+
+
+AttachmentsNotesMigrationPermissionSets
+PS_For_AttachmentsNotesMigrator
+
+========
+SELECT RecordId, HasEditAccess FROM UserRecordAccess WHERE UserId = [single ID] AND RecordId = [single ID]
+
+SELECT Id, Name, UserRecordAccess.HasReadAccess, UserRecordAccess.HasTransferAccess, UserRecordAccess.MaxAccessLevel 
+  FROM Account
+
+SELECT Id, Parent.Name, Parent.Profile.Name, Parent.Profile.Id FROM SetupEntityAccess WHERE Parent.Profile.Id = :UserInfo.getProfileId() AND SetupEntityId in (SELECT Id FROM ApexPage WHERE Name = 'MyPage' AND NamespacePrefix = null)
+
+SetupEntityAccess[] accessSettings = [SELECT Id FROM SetupEntityAccess WHERE
+    SetupEntityId IN (SELECT Id FROM ApexPage
+        WHERE NamespacePrefix = :your_namespace AND Name = :your_page)
+    AND
+    ParentId IN (SELECT PermissionSetId FROM PermissionSetAssignment
+        WHERE AssigneeId = :UserInfo.getUserId())
+    LIMIT 1];
+
+From <https://salesforce.stackexchange.com/questions/40683/how-do-i-find-out-if-a-user-has-access-to-a-visualforce-page-through-apex> 
+
+
+
+======
+
+https://www.simplysfdc.com/2013/06/salesforce-permission-set-report.html
+
+List all Permission Set not from Managed Package
+
+SELECT Id, Name FROM PermissionSet WHERE IsOwnedByProfile = False AND NamespacePrefix = '' ORDER BY Name
+
+Show all Users with ViewAllData Permission
+SELECT Id, AssigneeId, Assignee.Name, PermissionSet.IsOwnedByProfile
+FROM PermissionSetAssignment
+WHERE PermissionSet.PermissionsViewAllData = True
+ORDER BY PermissionSet.IsOwnedByProfile DESC, Assignee.Name
+
+SELECT Id, Name FROM User
+WHERE ProfileId IN  (SELECT Id                     FROM Profile
+                    WHERE PermissionsViewAllData = true)
+ORDER BY Name
+
+Show all Active Users with Transfer Record Permission
+SELECT Id, AssigneeId, Assignee.Name, Assignee.Profile.Name, PermissionSet.IsOwnedByProfile
+FROM PermissionSetAssignment
+WHERE PermissionSet.PermissionsTransferAnyEntity = True AND Assignee.IsActive = True
+ORDER BY PermissionSet.IsOwnedByProfile DESC, Assignee.Name
+
+
+From <https://www.simplysfdc.com/2013/06/salesforce-permission-set-report.html> 
+
+Show all Users by specific Profile and return Permission Set assigned to that user
+SELECT p.Id, p.Assignee.Name, p.Assignee.Profile.Name, p.PermissionSet.Label
+FROM PermissionSetAssignment p
+WHERE p.PermissionSet.IsOwnedByProfile = False AND p.Assignee.Profile.Name = 'Sales Reps'
+ORDER BY p.PermissionSet.Label, p.Assignee.Name
+
+This query will return all Users with Permission Set assigned to users with Profile = Sales Reps and the additional Permission Set name assigned.
+
+Show Profile and Permission Set have read access to Account for a User
+SELECT Assignee.Name, PermissionSet.isOwnedByProfile, PermissionSet.Profile.Name, PermissionSet.Label
+FROM PermissionSetAssignment
+WHERE PermissionSetId
+IN (SELECT ParentId FROM ObjectPermissions WHERE SObjectType = 'Account' AND PermissionsRead = True)
+AND Assignee.Name = 'Johan Yu'
+ORDER BY PermissionSet.Profile.Name, PermissionSet.Label
+
+Show Permission a User has for Account and which permissions give that access
+SELECT Id, SObjectType, Parent.Label, Parent.IsOwnedByProfile, PermissionsRead, PermissionsCreate, PermissionsEdit, PermissionsDelete, PermissionsViewAllRecords, PermissionsModifyAllRecords
+FROM ObjectPermissions
+WHERE (ParentId IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE Assignee.Name = 'Johan Yu'))
+AND (SobjectType = 'Account')
+ORDER BY Parent.IsOwnedByProfile DESC, Parent.Label
+
+This query will return user permission of an object and also tell all Permission Set (and Profile if exist) that give the user that permissions.
+
+Show Object Settings added to all Permission Set
+SELECT SobjectType, Parent.Name, PermissionsRead, PermissionsCreate, PermissionsEdit, PermissionsDelete, PermissionsViewAllRecords, PermissionsModifyAllRecords FROM ObjectPermissions WHERE SObjectType IN ('Account') AND Parent.IsOwnedByProfile = false
+
+
+==========================
+
+27th Sept, 2018
+ProfilePermissions
+
+SELECT Id, SObjectType, ParentId, Parent.ProfileId, Parent.Profile.Name, PermissionsCreate, PermissionsRead, PermissionsEdit, PermissionsDelete, PermissionsModifyAllRecords,PermissionsViewAllRecords FROM ObjectPermissions WHERE SobjectType = '<Specify Object API Name>' and parentid in (select Id from PermissionSet where PermissionSet.ProfileId IN ('<Specify Profile IDs>'))
+
+From <https://developer.salesforce.com/forums/?id=9060G0000005R7UQAU> 
+
+
+
+
+PartnerUserContactSync
+Hi Vivek,
+ 
+We see the Account row id 3-HPMHZS(account name マクニカネットワークス株式会社) has  Company Domain - macnica.net 
+ 
+The domain name for mfe-info@cs.macnica.net is different (cs.macnica.net ) and so the partner contact did not flow to SFDC. 
+
+=============================
+select  id,name,LastLoginDate,profile.name,email,Legacy_User_Id__c from user where IsActive<>true and profile.name  in 
+('Custom: PCT','Custom: CRM Analyst/Territory Admin','Custom: Deal Desk','Custom: CAM/iCAM/DAM','Custom: LCS','Custom: Channel Program Manager (Global)','Custom: Professional Services','Custom: RLM Quote Ops','Custom: RLM Sales Rep','Custom: Sales Engineer','Custom: Sales Ops','Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast')  and id  in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81QAA','0501J0000008y86QAA')) order by profile.name
+
+
+=======ApttusLicense======================
+SELECT id,AllowedLicenses, UsedLicenses, ExpirationDate, CreatedDate, 
+           IsProvisioned, Status,NamespacePrefix      FROM PackageLicense where Status='Active'
+
+
+From <https://salesforce.stackexchange.com/questions/21180/get-the-list-of-users-licensed-for-a-managed-package> 
+
+
+
+====Good Script: Inactive users with Licenses  ==============
+========== Updated with UserType, Email and DateAssigned
+==== Working as of 27th April, 2020
+=====================================================
+Map<Id, User> userMap = new Map<Id, User>( [select  id from user where  id in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y86','0501J0000008y7h','0501J000000k9fy',
+'0501J000000k9ft','0501J0000008y6y','0501J0000008y7r','0501J0000008y6t','0501J0000008y7c')) ]  );
+Set<Id> resultIds = userMap.keySet();
+system.debug('==== userMap : '+ userMap.size());
+Map<Id,UserPackageLicense> uIDDocGenMap 			= new Map<Id,UserPackageLicense>();
+Map<Id,UserPackageLicense> uIdXlDocGenMap 	= new Map<Id,UserPackageLicense>();
+Map<Id,UserPackageLicense> uIdXAuthDgnXlMap 		= new Map<Id,UserPackageLicense>();
+Map<Id,UserPackageLicense> uIdAppMgmntMap 	= new Map<Id,UserPackageLicense>();
+Map<Id,UserPackageLicense> uIDPkg5Map 		= new Map<Id,UserPackageLicense>();
+Map<Id,UserPackageLicense> uIDPkg6Map 		= new Map<Id,UserPackageLicense>();
+Map<Id,UserPackageLicense> uIDPkg7Map 		= new Map<Id,UserPackageLicense>();
+Map<Id,UserPackageLicense> uIDPkg8Map 		= new Map<Id,UserPackageLicense>();
+
+for (UserPackageLicense upl : [select UserId,PackageLicenseId,CreatedDate  from UserPackageLicense where PackageLicenseId ='0501J0000008y81' and UserId in :resultIds ])
+{    uIDDocGenMap.put(upl.UserId,upl);
+}
+for (UserPackageLicense upl : [select UserId,PackageLicenseId,CreatedDate  from UserPackageLicense where PackageLicenseId ='0501J0000008y86' and UserId in :resultIds ])
+{    uIdXlDocGenMap.put(upl.UserId,upl );
+}
+for (UserPackageLicense upl : [select UserId,PackageLicenseId,CreatedDate  from UserPackageLicense where PackageLicenseId ='0501J0000008y7h' and UserId in :resultIds ])
+{    uIdXAuthDgnXlMap.put(upl.UserId,upl );
+}
+for (UserPackageLicense upl : [select UserId,PackageLicenseId,CreatedDate  from UserPackageLicense where PackageLicenseId ='0501J000000k9ft' and UserId in :resultIds ])
+{    uIdAppMgmntMap.put(upl.UserId,upl );
+}
+string header = 'Record Id, Name ,Active,UserCreatedDate,UserRole,UserType,Profile,LastLoginDate,Email,DocGeneration,DogGenAssigned,X-AuthorForExcelDocumentGeneration,ExcelAssign,X-AuthorDesignerForExcel,DesignAssigned,ApprovalsManagement\n';
+string finalstr = header ;
+//System.debug('==== Apttus Document Generation   :  '+uIDDocGenMap.keySet());
+for (User usr : [select id,name,IsActive,LastLoginDate,profile.name,email,usertype,CreatedDate,User_Role_Name__c from user where id in :resultIds ])
+{
+    system.debug('---- Muneesh  : '+ usr.id +'  /// '+ uIDDocGenMap.containsKey(usr.id));
+    if (uIDDocGenMap.containsKey(usr.id) ) {
+            string recordString = usr.id+','+usr.name+','+usr.IsActive+','+usr.CreatedDate+','+usr.User_Role_Name__c+','+usr.UserType+','+usr.profile.name+','+usr.LastLoginDate+','+usr.email+','+'Yes'+','+uIDDocGenMap.get(usr.id).CreatedDate;
+		     finalstr = finalstr +recordString;  
+    } 
+     if (!uIDDocGenMap.containsKey(usr.id) )   {
+			string recordString = usr.id+','+usr.name+','+usr.IsActive+','+usr.CreatedDate+','+usr.User_Role_Name__c+','+usr.UserType+','+usr.profile.name+','+usr.LastLoginDate+','+usr.email+','+'No'+','+' ';
+         finalstr = finalstr +recordString;  }
+		 
+    if (uIdXlDocGenMap.containsKey(usr.id) ) {
+             string recordString = ','+'Yes'+','+uIdXlDocGenMap.get(usr.id).CreatedDate; 
+		     finalstr = finalstr +recordString;  
+    } 
+     if (!uIdXlDocGenMap.containsKey(usr.id) )   {
+        string recordString = ','+'No'+','+' ';
+         finalstr = finalstr +recordString;  }
+		 
+	if (uIdXAuthDgnXlMap.containsKey(usr.id) ) {
+             string recordString = ','+'Yes' ;
+		     finalstr = finalstr +recordString;  
+    } 
+     if (!uIdXAuthDgnXlMap.containsKey(usr.id) )   {
+        string recordString = ','+'No' ;
+         finalstr = finalstr +recordString;  }
+		 
+	if (uIdAppMgmntMap.containsKey(usr.id) ) {
+             string recordString = ','+'Yes'+'\n';
+		     finalstr = finalstr +recordString;  
+    } 
+     if (!uIdAppMgmntMap.containsKey(usr.id) )   {
+        string recordString = ','+'No'+'\n';
+         finalstr = finalstr +recordString;  }
+}
+//System.debug('==== finalstr   :  '+finalstr);
+Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
+blob csvBlob = Blob.valueOf(finalstr);
+string csvname= 'ApttusPkgsAllUsersWithDates.csv';
+csvAttc.setFileName(csvname);
+csvAttc.setBody(csvBlob);
+Messaging.SingleEmailMessage email =new Messaging.SingleEmailMessage();
+String[] toAddresses = new list<string> {'muneesh.bhalla@trellix.com'};
+String subject ='User Apttus Pkg Assignment  -- ApttusPkgsAllUsers.With Dates';
+email.setSubject(subject);
+email.setToAddresses( toAddresses );
+email.setPlainTextBody('User Apttus Pkg Assignment ');
+email.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
+Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[] {email});
+
+
+================================================
+Map<Id, User> userMap = new Map<Id, User>( [select  id from user where  profile.name  in 
+('Custom: PCT','Custom: CRM Analyst/Territory Admin','Custom: Deal Desk','Custom: CAM/iCAM/DAM','Custom: LCS','Custom: Channel Program Manager (Global)','Custom: Professional Services',
+ 'Custom: RLM Quote Ops','Custom: RLM Sales Rep','Custom: Sales Engineer','Custom: Sales Ops','Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast')  and id in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y86','0501J0000008y7h','0501J000000k9fy',
+'0501J000000k9ft','0501J0000008y6y','0501J0000008y7r','0501J0000008y6t','0501J0000008y7c'))]);
+Set<Id> resultIds = userMap.keySet();
+system.debug('==== userMap : '+ userMap.size());
+Map<Id,Id> uIDDocGenMap = new Map<Id,Id>();
+Map<Id,Id> uIdXlDocGenMap = new Map<Id,Id>();
+Map<Id,Id> uIdXAuthDgnXlMap = new Map<Id,Id>();
+Map<Id,Id> uIdAppMgmntMap = new Map<Id,Id>();
+Map<Id,Id> uIDPkg5Map = new Map<Id,Id>();
+Map<Id,Id> uIDPkg6Map = new Map<Id,Id>();
+Map<Id,Id> uIDPkg7Map = new Map<Id,Id>();
+Map<Id,Id> uIDPkg8Map = new Map<Id,Id>();
+
+for (UserPackageLicense upl : [select UserId,PackageLicenseId  from UserPackageLicense where PackageLicenseId ='0501J0000008y81' and UserId in :resultIds ])
+{    uIDDocGenMap.put(upl.UserId,upl.PackageLicenseId);
+}
+for (UserPackageLicense upl : [select UserId,PackageLicenseId  from UserPackageLicense where PackageLicenseId ='0501J0000008y86' and UserId in :resultIds ])
+{    uIdXlDocGenMap.put(upl.UserId,upl.PackageLicenseId);
+}
+for (UserPackageLicense upl : [select UserId,PackageLicenseId  from UserPackageLicense where PackageLicenseId ='0501J0000008y7h' and UserId in :resultIds ])
+{    uIdXAuthDgnXlMap.put(upl.UserId,upl.PackageLicenseId);
+}
+for (UserPackageLicense upl : [select UserId,PackageLicenseId  from UserPackageLicense where PackageLicenseId ='0501J000000k9ft' and UserId in :resultIds ])
+{    uIdAppMgmntMap.put(upl.UserId,upl.PackageLicenseId);
+}
+string header = 'Record Id, Name ,Active,Profile,LastLoginDate,DocGeneration,X-AuthorForExcelDocumentGeneration,X-AuthorDesignerForExcel,ApprovalsManagement\n';
+string finalstr = header ;
+//System.debug('==== Apttus Document Generation   :  '+uIDDocGenMap.keySet());
+for (User usr : [select id,name,IsActive,LastLoginDate,profile.name from user where id in :resultIds ])
+{
+    system.debug('---- Muneesh  : '+ usr.id +'  /// '+ uIDDocGenMap.containsKey(usr.id));
+    if (uIDDocGenMap.containsKey(usr.id) ) {
+            string recordString = usr.id+','+usr.name+','+usr.IsActive+','+usr.profile.name+','+usr.LastLoginDate+','+'Yes';
+		     finalstr = finalstr +recordString;  
+    } 
+     if (!uIDDocGenMap.containsKey(usr.id) )   {
+			string recordString = usr.id+','+usr.name+','+usr.IsActive+','+usr.profile.name+','+usr.LastLoginDate+','+'No';
+         finalstr = finalstr +recordString;  }
+		 
+    if (uIdXlDocGenMap.containsKey(usr.id) ) {
+             string recordString = ','+'Yes' ;
+		     finalstr = finalstr +recordString;  
+    } 
+     if (!uIdXlDocGenMap.containsKey(usr.id) )   {
+        string recordString = ','+'No' ;
+         finalstr = finalstr +recordString;  }
+		 
+	if (uIdXAuthDgnXlMap.containsKey(usr.id) ) {
+             string recordString = ','+'Yes' ;
+		     finalstr = finalstr +recordString;  
+    } 
+     if (!uIdXAuthDgnXlMap.containsKey(usr.id) )   {
+        string recordString = ','+'No' ;
+         finalstr = finalstr +recordString;  }
+		 
+	if (uIdAppMgmntMap.containsKey(usr.id) ) {
+             string recordString = ','+'Yes'+'\n';
+		     finalstr = finalstr +recordString;  
+    } 
+     if (!uIdAppMgmntMap.containsKey(usr.id) )   {
+        string recordString = ','+'No'+'\n';
+         finalstr = finalstr +recordString;  }
+}
+//System.debug('==== finalstr   :  '+finalstr);
+Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
+blob csvBlob = Blob.valueOf(finalstr);
+string csvname= 'ApttusPkgsAllUsers.csv';
+csvAttc.setFileName(csvname);
+csvAttc.setBody(csvBlob);
+Messaging.SingleEmailMessage email =new Messaging.SingleEmailMessage();
+String[] toAddresses = new list<string> {'muneesh_bhalla@mcafee.com'};
+String subject ='User Apttus Pkg Assignment  -- ApttusPkgsAllUsers.';
+email.setSubject(subject);
+email.setToAddresses( toAddresses );
+email.setPlainTextBody('User Apttus Pkg Assignment ');
+email.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
+Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[] {email});
+
+
+==================================================
+Hi Muneesh,
+ 
+Use the below SOQL to find the users who doesn’t have CPQ packages access. 
+ 
+select  id,name,LastLoginDate,profile.name,email,Legacy_User_Id__c from user where IsActive=true and profile.name  in 
+('Custom: PCT','Custom: CRM Analyst/Territory Admin','Custom: Deal Desk','Custom: CAM/iCAM/DAM','Custom: LCS','Custom: Channel Program Manager (Global)','Custom: Professional Services','Custom: RLM Quote Ops','Custom: RLM Sales Rep','Custom: Sales Engineer','Custom: Sales Ops','Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast')  and id not in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y86','0501J0000008y7h','0501J000000k9fy','0501J000000k9ft','0501J0000008y6y','0501J0000008y7r','0501J0000008y6t','0501J0000008y7c')) order by profile.name
+ 
+ 
+Regards
+RK
+Inactive Users assigned Licenses
+select  id,name,LastLoginDate ,IsActive,profile.name,email,Legacy_User_Id__c from user where IsActive=false and LastLoginDate <LAST_N_DAYS:120 and profile.name  in 
+('Custom: PCT','Custom: CRM Analyst/Territory Admin','Custom: Deal Desk','Custom: CAM/iCAM/DAM','Custom: LCS','Custom: Channel Program Manager (Global)','Custom: Professional Services','Custom: RLM Quote Ops','Custom: RLM Sales Rep','Custom: Sales Engineer','Custom: Sales Ops','Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast')  and id in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y86','0501J0000008y7h','0501J000000k9fy','0501J000000k9ft','0501J0000008y6y','0501J0000008y7r','0501J0000008y6t','0501J0000008y7c')) order by LastLoginDate  desc
+
+
+Users not Logged in Last 120 days but are assigned licenses
+select  id,name,LastLoginDate ,IsActive,profile.name,email,Legacy_User_Id__c from user where IsActive=true and LastLoginDate <LAST_N_DAYS:120 and profile.name  in 
+('Custom: PCT','Custom: CRM Analyst/Territory Admin','Custom: Deal Desk','Custom: CAM/iCAM/DAM','Custom: LCS','Custom: Channel Program Manager (Global)','Custom: Professional Services','Custom: RLM Quote Ops','Custom: RLM Sales Rep','Custom: Sales Engineer','Custom: Sales Ops','Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast')  and id in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y86','0501J0000008y7h','0501J000000k9fy','0501J000000k9ft','0501J0000008y6y','0501J0000008y7r','0501J0000008y6t','0501J0000008y7c')) order by LastLoginDate  desc
+
+================================
+We should go ahead and revoke the licenses from all users EXCEPT those with the below Profiles:
+ 
+	· Custom: Sales Rep/AM Forecast
+	· Custom: Sales Rep/AM
+	· Custom: Deal Desk
+ 
+Kim Grant
+==========================================================
+//// only delete doc generation
+UserPackageLicense[] doomedIds = [SELECT Id FROM UserPackageLicense  where PackageLicenseId='0501J0000008y81' and UserId in 
+(
+
+'0051J000005oOZfQAM','0051J000005ruU9QAI','0051J000005ruwDQAQ','0051J000005rvUKQAY','0051J000005rvycQAA','0051J000005rvzBQAQ','0051J000006AalrQAC','0051J000006xG9WQAU','0051J000007FnqUQAS','0052T00000CzBR3QAN','005o0000002ujDMAAY','005o0000003CXScAAO','005o0000003CXkcAAG','005o0000003CXkeAAG','005o0000003CY9tAAG','005o0000003CYnwAAG','005o0000003CYoyAAG','005o0000003CYvFAAW','005o0000003CZ3bAAG','005o0000003S0pkAAC','005o00000040QGqAAM','005o00000043VguAAE','005o00000044DgbAAE',
+')]; 
+     delete doomedIds;
+ 
+=== Delete for Inactive Users ====
+    UserPackageLicense[] doomedIds = [SELECT Id FROM UserPackageLicense  where UserId in 
+('0051J000004nB1KQAU','0051J000005pSPbQAM','0051J000005ruwIQAQ','005o0000003CXOGAA4','005o0000003CYvSAAW','005o0000003FGXdAAO')]; 
+     delete doomedIds;
+
+----- To Delete Doc Gen Licenses of Inactive users
+----- To Delete Doc Gen Licenses of Inactive users
+    --- 0501J0000008y86    Apttus X-Author™ For Excel Document Generation 
+    --- 0501J0000008y81  	Apttus Document Generation      
+    
+'0501J0000008y81QAA','0501J0000008y86QAA'
+
+=== Remove : Apttus X-Author™ For Excel Document Generation   ===
+    UserPackageLicense[] doomedIds = [SELECT Id FROM UserPackageLicense  where PackageLicenseId  in ('0501J0000008y86QAA') and UserId in 
+(select id from user where IsActive=false) limit 100]; 
+    delete doomedIds;
+
+    UserPackageLicense[] doomedIds = [SELECT Id FROM UserPackageLicense  where PackageLicenseId  in ('0501J0000008y86QAA') and UserId in 
+(select id from user where IsActive=false and profile.name <> 'System Administrator') limit 10]; 
+    delete doomedIds;
+
+
+=== Remove : Apttus Document Generation       ============
+    UserPackageLicense[] doomedIds = [SELECT Id FROM UserPackageLicense  where PackageLicenseId  in ('0501J0000008y81QAA') and UserId in 
+(select id from user where IsActive=false and profile.name <> 'System Administrator') limit 100]; 
+    delete doomedIds;
+
+SELECT AllowedLicenses, UsedLicenses, NamespacePrefix, Id ,
+           ExpirationDate, CreatedDate, 
+           IsProvisioned, Status
+   FROM PackageLicense where Status='Active' and NamespacePrefix like 'Apttus%' and AllowedLicenses > 0
+
+
+
+select id,LastLoginDate,email,profile.name from User where isActive=true and (not name like '%test%') and (not name like '%Guest%') and LastLoginDate <LAST_N_DAYS:120
+and profile.name='Custom: Partner Community User'
+
+select id,LastLoginDate,email,profile.name from User where isActive=true and (not name like '%test%') and (not name like '%Guest%') and LastLoginDate <LAST_N_DAYS:120
+
+SELECT Id, NamespacePrefix, AllowedLicenses, UsedLicenses,ExpirationDate,Status FROM PackageLicense where NamespacePrefix like '%Apttus%' and AllowedLicenses > 0
+
+
+select PackageLicense.NamespacePrefix,count(ID) from UserPackageLicense eLicense where userid in (select id from user where isActive=false)  
+group by PackageLicense.NamespacePrefix 
+
+select id,PackageLicenseId, UserId  from UserPackageLicense where UserId in
+(select  id from user where profile.name in ('Custom:  3rd Party LDR'))
+Dated : Sept 19,2018
+
+SELECT Id,NamespacePrefix,Status,AllowedLicenses,UsedLicenses,ExpirationDate FROM PackageLicense
+where NamespacePrefix like 'Apttus%'
+
+--- Users who are Inactive but tied to Doc Generation Licenses    0501J0000008y81  
+
+select id from user where IsActive=false and id  in
+(select userid from UserPackageLicense where PackageLicenseId  in ('0501J0000008y81'))
+Apttus Document Generation
+Apttus X-Author For Excel Document Generation
+
+----- To Delete Doc Gen Licenses of Inactive users
+    --- 0501J0000008y86    		Apttus X-Author™ For Excel Document Generation 
+    --- 0501J0000008y81  	Apttus Document Generation      
+    
+    UserPackageLicense[] doomedIds = [SELECT Id FROM UserPackageLicense  where PackageLicenseId  in ('0501J0000008y81','0501J0000008y86') and UserId in 
+(select id from user where IsActive=false) limit 100]; 
+    delete doomedIds;
+
+select id from UserPackageLicense where PackageLicenseId in ('0501J0000008y86','0501J0000008y81') and UserId in
+(select  id from user where profile.name in ('Custom:  3rd Party LDR','Custom: Content Platform User','Custom: Integration User','Custom: LCS','Custom: LDR','Custom: Legal','Custom: Product Mgr','Custom: Tier 1 CEA','Custom: Tier 2 CEA & Basic CPM',
+'Partner Community User','Read Only','Standard User'))
+
+Users which are supposed to get packages  develop Apex and put the result in an excel file.
+=========================
+	1. Get list of all internal users
+select  id,name,profile.name,email,Legacy_User_Id__c from user where IsActive=true and profile.name  in 
+('Custom: PCT','Custom: CRM Analyst/Territory Admin','Custom: Deal Desk','Custom: CAM/iCAM/DAM','Custom: LCS','Custom: Channel Program Manager (Global)','Custom: Professional Services','Custom: RLM Quote Ops','Custom: RLM Sales Rep','Custom: Sales Engineer','Custom: Sales Ops','Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast')  and id not in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y86','0501J0000008y7h','0501J000000k9fy','0501J000000k9ft','0501J0000008y6y','0501J0000008y7r','0501J0000008y6t','0501J0000008y7c')) order by profile.name
+
+
+	1. From l user package licenses, create map<userid,licenses of that type>. That means you may have to create 10 different maps
+Map<Id, User> userMap = new Map<Id, User>( [select  id from user where IsActive=true and profile.name  in 
+('Custom: PCT','Custom: CRM Analyst/Territory Admin','Custom: Deal Desk','Custom: CAM/iCAM/DAM','Custom: LCS','Custom: Channel Program Manager (Global)','Custom: Professional Services',
+ 'Custom: RLM Quote Ops','Custom: RLM Sales Rep','Custom: Sales Engineer','Custom: Sales Ops','Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast')  and id in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y86','0501J0000008y7h','0501J000000k9fy',
+'0501J000000k9ft','0501J0000008y6y','0501J0000008y7r','0501J0000008y6t','0501J0000008y7c'))]);
+Set<Id> resultIds = userMap.keySet();
+system.debug('==== userMap : '+ userMap.size());
+Map<Id,UserPackageLicense> uIDPkg1Map = new Map<Id,UserPackageLicense>([select UserId,PackageLicenseId  from UserPackageLicense where PackageLicenseId ='0501J0000008y81' and UserId in :resultIds]);
+Map<Id,UserPackageLicense> uIDPkg2Map = new Map<Id,UserPackageLicense>([select UserId,PackageLicenseId  from UserPackageLicense where PackageLicenseId ='0501J0000008y86' and UserId in :resultIds]);
+System.debug('==== Apttus Document Generation   :  '+uIDPkg1Map.size());
+
+	1. Loop users
+		a. If  user in Map2 then mark in csv for that colimn in csv
+	Map<Id, User> userMap = new Map<Id, User>( [select  id from user where IsActive=true and profile.name  in 
+	('Custom: PCT','Custom: CRM Analyst/Territory Admin','Custom: Deal Desk','Custom: CAM/iCAM/DAM','Custom: LCS','Custom: Channel Program Manager (Global)','Custom: Professional Services',
+	 'Custom: RLM Quote Ops','Custom: RLM Sales Rep','Custom: Sales Engineer','Custom: Sales Ops','Custom: Sales Rep/AM','Custom: Sales Rep/AM Forecast')  and id in 
+	(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y86','0501J0000008y7h','0501J000000k9fy',
+	'0501J000000k9ft','0501J0000008y6y','0501J0000008y7r','0501J0000008y6t','0501J0000008y7c'))]);
+	Set<Id> resultIds = userMap.keySet();
+	system.debug('==== userMap : '+ userMap.size());
+	Map<Id,Id> uIDPkg1Map = new Map<Id,Id>();
+	for (UserPackageLicense upl : [select UserId,PackageLicenseId  from UserPackageLicense where PackageLicenseId ='0501J0000008y81' and UserId in :resultIds ])
+	{    uIDPkg1Map.put(upl.UserId,upl.PackageLicenseId);
+	}
+	string header = 'Record Id, Name ,ApttusDocGeneration   \n';
+	string finalstr = header ;
+	//System.debug('==== Apttus Document Generation   :  '+uIDPkg1Map.keySet());
+	for (User usr : [select id,name from user where id in :resultIds limit 4])
+	{
+	    system.debug('---- Muneesh  : '+ usr.id +'  /// '+ uIDPkg1Map.containsKey(usr.id));
+	    if (uIDPkg1Map.containsKey(usr.id) ) {
+	             string recordString = usr.id+','+usr.name+','+'Yes'+'\n';
+			     finalstr = finalstr +recordString;  
+	    } 
+	     if (!uIDPkg1Map.containsKey(usr.id) )   {
+	        string recordString = usr.id+','+usr.name+','+'No'+'\n';
+	         finalstr = finalstr +recordString;  }
+	}
+	System.debug('==== finalstr   :  '+finalstr);
+	
+	
+List<Account > acclist = [Select id,name , CreatedDate , lastModifiedDate from Account limit 10];
+string header = 'Record Id, Name , Created Date, Modified Date \n';
+string finalstr = header ;
+for(Account a: acclist)
+{
+       string recordString = a.id+','+a.Name+','+a.CreatedDate+','+a.LastModifiedDate +'\n';
+       finalstr = finalstr +recordString;
+}
+Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
+blob csvBlob = Blob.valueOf(finalstr);
+string csvname= 'Account.xls';
+csvAttc.setFileName(csvname);
+csvAttc.setBody(csvBlob);
+Messaging.SingleEmailMessage email =new Messaging.SingleEmailMessage();
+String[] toAddresses = new list<string> {'test@test.com};
+String subject ='Account CSV';
+email.setSubject(subject);
+email.setToAddresses( toAddresses );
+email.setPlainTextBody('Account CSV ');
+email.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
+Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[] {email});
+
+============================
+
+select  id,name,profile.name,email,Legacy_User_Id__c from user where IsActive=true and profile.name not in ('Custom:  3rd Party LDR','Custom: Content Platform User','Custom: Integration User','Custom: LCS','Custom: LDR','Custom: Legal','Custom: Product Mgr','Custom: Tier 1 CEA','Custom: Tier 2 CEA & Basic CPM',
+'Partner Community User','Read Only','Standard User') and id not in 
+(select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81',' 0501J0000008y7c' ,'0501J0000008y6t','0501J0000008y7r','0501J0000008y6y','0501J000000k9ft', '0501J0000008y7h','0501J0000008y86'))
+
+select UserId ,count(PackageLicenseId) from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y7c' ,
+'0501J0000008y6t','0501J0000008y7r','0501J0000008y6y','0501J000000k9ft', '0501J0000008y7h','0501J0000008y86') and userid in
+(select  id from user where IsActive=true and profile.name not in ('Custom:  3rd Party LDR','Custom: Content Platform User','Custom: Integration User','Custom: LCS','Custom: LDR','Custom: Legal','Custom: Product Mgr','Custom: Tier 1 CEA','Custom: Tier 2 CEA & Basic CPM',
+'Partner Community User','Read Only','Standard User') and id not in (select UserId from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y7c' ,
+'0501J0000008y6t','0501J0000008y7r','0501J0000008y6y','0501J000000k9ft', '0501J0000008y7h','0501J0000008y86')) )
+group by UserId
+
+
+select UserId ,count(PackageLicenseId) from UserPackageLicense where PackageLicenseId in ('0501J0000008y81','0501J0000008y7c' ,
+'0501J0000008y6t','0501J0000008y7r','0501J0000008y6y','0501J000000k9ft', '0501J0000008y7h','0501J0000008y86') and userid in
+(select  id from user where IsActive=true and profile.name not in ('Custom:  3rd Party LDR','Custom: Content Platform User','Custom: Integration User','Custom: LCS','Custom: LDR','Custom: Legal','Custom: Product Mgr','Custom: Tier 1 CEA','Custom: Tier 2 CEA & Basic CPM',
+'Partner Community User','Read Only','Standard User')  )
+group by UserId having count(PackageLicenseId) < 8
+limit 200
+
+select id from user where IsActive=true and name in (
+'Armando Salcedo Mejia','Avon Rhoda','Boris Zlatanov','Caitlin Bowers','Chris Gomolak','CHRISTIAN HERNANDEZ','Christine Yuri Shin','Corne Menezes',
+'CY Hoi','Dimitris Rodoplou','Fabio Shimada','Fabio Silveira','Francisco Cabeza','Gaston Gualdoni','Giles Montgomery','Grace Alcivar','Hisham Moawad',
+'Impartner Integration User','Ingeborg Aune','Ismael Navarro','Itzcoatl Osorio Ayllón','Javier Fajardo','Jeff Karan','Jeremy Trammell','Jhonatan Quemba',
+'Joey Quinones','Jose Santos','Juan Pablo Aguirre Echeverri','Julia Schriefer','Kanokon Sungkaew','Keiron Holyome','Kelly Quintero','Leonardo Moccia',
+'Lorena Leal','Marcela Lugo','MARIA SALAZAR HOYLE','MARIANA LINARES','Marina Ajuria','Mario Izaias','Mark Kattouf','Marta Bandolin','Meghan Niski',
+'Melanie Calvanese','Mike Bate','Neal Botje','Oliver Mouly','Pano Poulos','Pat O\'Leary','Paul Zotloeterer','Paula Ibanez','Peter Richardson','POONAM SHIVHARE',
+'Rick Estey','Robert Madej','Rohan Langdon','Romain Beretti','Roope Ranta','Sami Toivonen','Samreen Rizwan','Sandra Susinto','SHARIFAH NUR BINTE SYED MOHSEN ALKAFF',
+'Shirley Lim Xueli','Shiva Selvam','Sonja Frishman','Tyler Sheridan','Vickneswary Shanmugham','Violaine Robet','WILLIAM BURG','Yaniv Nezri')
+ and id not in
+(select userid from UserPackageLicense where PackageLicenseId not in ('0501J0000008y81','0501J0000008y86'))
+
+Apttus X-Author™ For Excel                           		033i0000000GhxC       0501J0000008y7c                   3000                325
+Apttus Proposal Management                                   	033700000004tSm      0501J0000008y6t                    5510                        329
+Apttus Promotion Management                                	03361000000PaRe      0501J0000008y7r                    2500                        328
+Apttus Configuration & Pricing                                  	033A000000010rj       0501J0000008y6y                   5510                        329
+Apttus Custom Approvals Management                    ???????                                                                                    for internal users only ????
+(Apttus Approvals Management                                	033700000000YrL       0501J000000k9ft                     3010                        416)
+Apttus X-Author™ Designer For Excel            	033i0000000XdcM      0501J0000008y7h                   3000                326
+Apttus X-Author™ For Excel Document Generation 	 033j00000006SZl        0501J0000008y86                   1500                        325
+Apttus Document Generation                        	033F0000000K6HL      0501J0000008y81                   1500                328 
+
+Users with Employee Number as Blank
+
+select EPER.LIC_PLATE_NUM,EPER.CREATED,su.login,su.last_login_ts,su.x_active_flg,eper.termination_dt ,su.x_sf_id
+from siebel.s_emp_per EPER, SIEBEL.S_USER SU where EPER.PAR_ROW_ID = SU.ROW_ID AND EPER.lic_plate_num is null and EPER.created > '01-JAN-2011'
+and su.login not like '%@%'  order by su.created desc;
+
+GUCN UCN SOQL
+Attached are the accounts where GUCN and Parent UCN are null in SF.
+ 
+SELECT Account_Type__c,Account_UCN__c,Global_UCN__c,Id,Legacy_Id__c,Legacy_MDM_ID__c,Name,Parent_UCN__c,Site_Designation__c,Type FROM Account WHERE Global_UCN__c = null AND Parent_UCN__c = null
+
+
+

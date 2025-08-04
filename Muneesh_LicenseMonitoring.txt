@@ -1,0 +1,74 @@
+public class LicenseRow implements Comparable {
+    public String name;
+    public Integer total;
+    public Integer used;
+    public Integer remaining;
+    public Decimal percentUsed;
+
+    public LicenseRow(String name, Integer total, Integer used) {
+        this.name = name;
+        this.total = total;
+        this.used = used;
+        this.remaining = (total != null && used != null) ? total - used : null;
+        this.percentUsed = (total != null && total > 0 && used != null)
+            ? ((Decimal.valueOf(used) / Decimal.valueOf(total)) * 100).setScale(2)
+            : null;
+    }
+
+    public Integer compareTo(Object o) {
+        LicenseRow b = (LicenseRow)o;
+        if (this.percentUsed == null && b.percentUsed == null) return 0;
+        if (this.percentUsed == null) return 1;
+        if (b.percentUsed == null) return -1;
+        if (this.percentUsed > b.percentUsed) return -1;
+        if (this.percentUsed < b.percentUsed) return 1;
+        return 0;
+    }
+}
+
+// Step 1: Collect user license usage
+List<LicenseRow> licenseRows = new List<LicenseRow>();
+
+for (UserLicense ul : [SELECT Name, TotalLicenses, UsedLicenses FROM UserLicense]) {
+    licenseRows.add(new LicenseRow(ul.Name, ul.TotalLicenses, ul.UsedLicenses));
+}
+
+// Step 2: Collect permission set license usage
+for (PermissionSetLicense psl : [SELECT MasterLabel, TotalLicenses, UsedLicenses FROM PermissionSetLicense]) {
+    licenseRows.add(new LicenseRow('[PSL] ' + psl.MasterLabel, psl.TotalLicenses, psl.UsedLicenses));
+}
+
+// Step 3: Sort by % used
+licenseRows.sort();
+
+// Step 4: Build HTML
+String htmlBody = '<html><body>';
+htmlBody += '<h2>Salesforce License Usage Report</h2>';
+htmlBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
+htmlBody += '<tr style="background-color:#dddddd;font-weight:bold;">'
+         + '<th>License Name</th><th>Total</th><th>Used</th><th>Remaining</th><th>% Used</th></tr>';
+
+for (LicenseRow row : licenseRows) {
+    String color = (row.percentUsed != null && row.percentUsed > 90) ? '#ffcccc' :
+                   (row.percentUsed != null && row.percentUsed > 70) ? '#fff4cc' : '#ccffcc';
+
+    htmlBody += '<tr style="background-color:' + color + '">'
+             + '<td>' + row.name + '</td>'
+             + '<td>' + String.valueOf(row.total) + '</td>'
+             + '<td>' + String.valueOf(row.used) + '</td>'
+             + '<td>' + String.valueOf(row.remaining) + '</td>'
+             + '<td>' + (row.percentUsed != null ? row.percentUsed + '%' : 'N/A') + '</td>'
+             + '</tr>';
+}
+
+htmlBody += '</table>';
+htmlBody += '<br/><i>Generated on ' + String.valueOf(Datetime.now()) + '</i></body></html>';
+
+// Step 5: Send email
+Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+mail.setToAddresses(new String[] { 'bhallamuneesh@meta.com' }); // Replace with actual recipient
+mail.setSubject('Salesforce License Usage Report');
+mail.setHtmlBody(htmlBody);
+Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+
+System.debug('✅ License usage email sent.');

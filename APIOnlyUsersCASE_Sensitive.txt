@@ -1,0 +1,87 @@
+// STEP 1: Find profiles with "API Only User" permission
+List<Profile> apiProfiles = [SELECT Id, Name FROM Profile WHERE PermissionsApiUserOnly = true];
+Set<Id> apiProfileIds = new Set<Id>();
+for (Profile p : apiProfiles) apiProfileIds.add(p.Id);
+
+// STEP 2: Query all possible matches (SOQL LIKE is case-insensitive)
+List<User> rawUsers = [
+    SELECT Id, Name, Username, Email, IsActive, LastLoginDate, CreatedDate,
+           Manager.Name, Profile.Name, ProfileId
+    FROM User
+    WHERE ProfileId IN :apiProfileIds OR Name LIKE '%API%'
+];
+
+// STEP 3: Case-sensitive filter: only names containing exact "API"
+List<User> apiUsers = new List<User>();
+for (User u : rawUsers) {
+    if (apiProfileIds.contains(u.ProfileId) || u.Name.contains('API')) {
+        apiUsers.add(u);
+    }
+}
+
+// STEP 4: Get PSL Id → Label map
+Map<Id, String> pslIdToLabel = new Map<Id, String>();
+for (PermissionSetLicense psl : [SELECT Id, MasterLabel FROM PermissionSetLicense]) {
+    pslIdToLabel.put(psl.Id, psl.MasterLabel);
+}
+
+// STEP 5: Map UserId → PSL Labels
+Map<Id, List<String>> userToPsls = new Map<Id, List<String>>();
+for (UserPackageLicense upl : [SELECT UserId, PackageLicenseId FROM UserPackageLicense]) {
+    String label = pslIdToLabel.containsKey(upl.PackageLicenseId)
+        ? pslIdToLabel.get(upl.PackageLicenseId)
+        : 'Unknown (' + upl.PackageLicenseId + ')';
+    if (!userToPsls.containsKey(upl.UserId)) userToPsls.put(upl.UserId, new List<String>());
+    userToPsls.get(upl.UserId).add(label);
+}
+
+// STEP 6: Summary counters
+Map<String, Integer> profileCounts = new Map<String, Integer>();
+Map<String, Integer> pslCounts = new Map<String, Integer>();
+for (User u : apiUsers) {
+    profileCounts.put(u.Profile.Name, 1 + (profileCounts.get(u.Profile.Name) != null ? profileCounts.get(u.Profile.Name) : 0));
+    if (userToPsls.containsKey(u.Id)) {
+        for (String label : userToPsls.get(u.Id)) {
+            pslCounts.put(label, 1 + (pslCounts.get(label) != null ? pslCounts.get(label) : 0));
+        }
+    }
+}
+
+// STEP 7: Build CSV
+String csv = 'Name,Username,Email,Profile,Manager,IsActive,LastLoginDate,CreatedDate,PSL_Names\n';
+for (User u : apiUsers) {
+    String mgr = u.Manager != null ? u.Manager.Name : '—';
+    String login = u.LastLoginDate != null ? String.valueOf(u.LastLoginDate) : '—';
+    String created = String.valueOf(u.CreatedDate);
+    String psls = userToPsls.containsKey(u.Id) ? String.join(userToPsls.get(u.Id), ';') : '—';
+    csv += '"' + u.Name + '","' + u.Username + '","' + u.Email + '","' +
+           u.Profile.Name + '","' + mgr + '","' + u.IsActive + '","' +
+           login + '","' + created + '","' + psls + '"\n';
+}
+
+// STEP 8: Build HTML Summary
+String html = '<html><body><h2>API Users Summary Report (Exact Match)</h2>';
+html += '<h3>By Profile</h3><table border="1"><tr><th>Profile</th><th>User Count</th></tr>';
+for (String profile : profileCounts.keySet()) {
+    html += '<tr><td>' + profile + '</td><td>' + profileCounts.get(profile) + '</td></tr>';
+}
+html += '</table>';
+
+html += '<h3>By Permission Set License</h3><table border="1"><tr><th>PSL</th><th>User Count</th></tr>';
+for (String psl : pslCounts.keySet()) {
+    html += '<tr><td>' + psl + '</td><td>' + pslCounts.get(psl) + '</td></tr>';
+}
+html += '</table><br><p><b>Total Users (exact API):</b> ' + apiUsers.size() + '</p></body></html>';
+
+// STEP 9: Email with CSV attachment
+Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+attachment.setFileName('API_Users_Report.csv');
+attachment.setBody(Blob.valueOf(csv));
+attachment.setContentType('text/csv');
+
+Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+mail.setToAddresses(new String[] { UserInfo.getUserEmail() });
+mail.setSubject('API Users Report (Case-Sensitive Match)');
+mail.setHtmlBody(html);
+mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });

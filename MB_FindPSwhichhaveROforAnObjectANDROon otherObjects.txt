@@ -1,0 +1,77 @@
+Integer batchSize = 25;
+Integer offsetVal = 0;
+Integer emailCount = 0;
+
+Set<Id> allPermSetIds = new Set<Id>();
+Map<Id, String> permSetIdToName = new Map<Id, String>();
+
+// Step 1: Get Permission Sets with read-only access to Country_Reference__c
+List<ObjectPermissions> readOnlyPermSets = [
+    SELECT ParentId, Parent.Name
+    FROM ObjectPermissions
+    WHERE SObjectType = 'Country_Reference__c'
+    AND PermissionsRead = true
+    AND PermissionsCreate = false
+    AND PermissionsEdit = false
+    AND PermissionsDelete = false
+];
+
+for (ObjectPermissions op : readOnlyPermSets) {
+    allPermSetIds.add(op.ParentId);
+    permSetIdToName.put(op.ParentId, op.Parent.Name);
+}
+
+// Step 2: Convert to List for batching
+List<Id> allIds = new List<Id>(allPermSetIds);
+Integer total = allIds.size();
+
+while (offsetVal < total) {
+    Integer endIdx = Math.min(offsetVal + batchSize, total);
+    List<Id> thisBatchIds = new List<Id>();
+    for (Integer i = offsetVal; i < endIdx; i++) {
+        thisBatchIds.add(allIds[i]);
+    }
+    offsetVal = endIdx;
+    emailCount++;
+
+    // Step 3: Get permissions for this batch (limit to 500 to stay safe)
+    List<ObjectPermissions> allPerms = [
+        SELECT ParentId, SObjectType,
+               PermissionsRead, PermissionsCreate, PermissionsEdit,
+               PermissionsDelete, PermissionsViewAllRecords, PermissionsModifyAllRecords
+        FROM ObjectPermissions
+        WHERE ParentId IN :thisBatchIds
+        LIMIT 500
+    ];
+
+    if (allPerms.isEmpty()) continue;
+
+    // Step 4: Build CSV as String
+    String csv = 'Permission Set,Object,Read,Create,Edit,Delete,View All,Modify All\n';
+    for (ObjectPermissions perm : allPerms) {
+        csv += permSetIdToName.get(perm.ParentId) + ',' +
+               perm.SObjectType + ',' +
+               perm.PermissionsRead + ',' +
+               perm.PermissionsCreate + ',' +
+               perm.PermissionsEdit + ',' +
+               perm.PermissionsDelete + ',' +
+               perm.PermissionsViewAllRecords + ',' +
+               perm.PermissionsModifyAllRecords + '\n';
+    }
+
+    // Step 5: Send CSV as Email
+    Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+    attachment.setFileName('PermissionSetObjectAccess_Part' + emailCount + '.csv');
+    attachment.setBody(Blob.valueOf(csv));
+    attachment.setContentType('text/csv');
+
+    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    mail.setToAddresses(new String[] { UserInfo.getUserEmail() });
+    mail.setSubject('Permission Set Object Access Report – Part ' + emailCount);
+    mail.setPlainTextBody('Attached is part ' + emailCount + ' of the CSV report showing object access.');
+    mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+
+    Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+}
+
+System.debug('✅ Completed. Sent ' + emailCount + ' email(s).');

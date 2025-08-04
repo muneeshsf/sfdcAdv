@@ -1,0 +1,63 @@
+// Define the list of fields to check
+String[] fieldsToCheck = new String[]{'ParentId','Website','Type','Industry','Primary_site__c','Description__c','WA_Agreement_Signed__c','Account Owner','WP_Target_Account__c','Customer_Type__c','Stage_of_Journey__c','Ave_Daily_Conversation_Volume__c','Contract_Number__c','Contract_Integration_Id__c','External_ID__c','Verification_Status__c','priority_whatsapp__c','Original_Lead_Source_Detail__c','Business_Manager_ID__c','App_Id__c','SMB_Region__c','Is_GBG_BoB__c','iswhatsapp__c','BMG_Product_Line__c'
+};
+
+Set<String> fieldFullNames = getFieldFullNames(fieldsToCheck);
+
+// Query PermissionSet
+List<PermissionSet> permissionSets = [
+    SELECT Id, Name 
+    FROM PermissionSet 
+    WHERE IsOwnedByProfile = false
+];
+
+// Add profiles
+List<Profile> profiles = [
+    SELECT Id, Name 
+    FROM Profile
+];
+
+String csvContent = 'Field,Permission Set,Permission Set Type,Edit Permission\n';
+
+// Query FieldPermissions
+List<FieldPermissions> fieldPermissions = [
+    SELECT ParentId, Parent.Name, Parent.IsOwnedByProfile, SobjectType, Field, PermissionsEdit 
+    FROM FieldPermissions 
+    WHERE SobjectType = 'Account' AND Field IN :fieldFullNames
+];
+
+for (FieldPermissions fp : fieldPermissions) {
+    String fieldName = fp.Field.substringAfter('.');
+    String permissionSetType = fp.Parent.IsOwnedByProfile ? 'Profile' : 'Permission Set';
+    csvContent += fieldName + ',' + fp.Parent.Name + ',' + permissionSetType + ',' + fp.PermissionsEdit + '\n';
+}
+
+sendEmailWithCsv('Field Permissions Report', 'Please find the field permissions report attached.', csvContent);
+
+public Set<String> getFieldFullNames(String[] fieldNames) {
+    Set<String> fieldFullNames = new Set<String>();
+    for (String fieldName : fieldNames) {
+        fieldFullNames.add('Account.' + fieldName);
+    }
+    return fieldFullNames;
+}
+
+public void sendEmailWithCsv(String subject, String body, String csvContent) {
+    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    mail.setSubject(subject);
+    mail.setPlainTextBody(body);
+    mail.setToAddresses(new String[] { UserInfo.getUserEmail() });
+    
+    // Create a CSV attachment
+    Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+    attachment.setContentType('text/csv');
+    attachment.setFileName('field_permissions_report.csv');
+    attachment.setBody(Blob.valueOf(csvContent));
+    
+    // Add the attachment to the email
+    mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+    
+    // Send the email
+    Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+}
+

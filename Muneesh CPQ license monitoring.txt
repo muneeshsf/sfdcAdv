@@ -1,0 +1,61 @@
+public class CpqLicenseRow {
+    public String name;
+    public Integer total;
+    public Integer used;
+    public Integer remaining;
+    public Decimal percentUsed;
+
+    public CpqLicenseRow(String name, Integer total, Integer used) {
+        this.name = name;
+        this.total = total;
+        this.used = used;
+        this.remaining = (total != null && used != null) ? total - used : null;
+        this.percentUsed = (total != null && total > 0 && used != null)
+            ? ((Decimal.valueOf(used) / Decimal.valueOf(total)) * 100).setScale(2)
+            : null;
+    }
+}
+
+// Step 1: Query CPQ-related PSLs
+List<String> cpqNames = new List<String>{ 'Salesforce CPQ License', 'Salesforce CPQ AA License', 'CPQ' };
+List<CpqLicenseRow> cpqRows = new List<CpqLicenseRow>();
+
+for (PermissionSetLicense psl : [
+    SELECT MasterLabel, TotalLicenses, UsedLicenses
+    FROM PermissionSetLicense
+    WHERE MasterLabel IN :cpqNames
+]) {
+    cpqRows.add(new CpqLicenseRow(psl.MasterLabel, psl.TotalLicenses, psl.UsedLicenses));
+}
+
+// Step 2: Build HTML table
+String htmlBody = '<html><body>';
+htmlBody += '<h2>Salesforce CPQ License Usage Report</h2>';
+htmlBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
+htmlBody += '<tr style="background-color:#dddddd;font-weight:bold;">'
+         + '<th>License Name</th><th>Total</th><th>Used</th><th>Remaining</th><th>% Used</th></tr>';
+
+for (CpqLicenseRow row : cpqRows) {
+    String color = (row.percentUsed != null && row.percentUsed > 90) ? '#ffcccc' :
+                   (row.percentUsed != null && row.percentUsed > 70) ? '#fff4cc' : '#ccffcc';
+
+    htmlBody += '<tr style="background-color:' + color + '">'
+             + '<td>' + row.name + '</td>'
+             + '<td>' + String.valueOf(row.total) + '</td>'
+             + '<td>' + String.valueOf(row.used) + '</td>'
+             + '<td>' + String.valueOf(row.remaining) + '</td>'
+             + '<td>' + (row.percentUsed != null ? row.percentUsed + '%' : 'N/A') + '</td>'
+             + '</tr>';
+}
+
+htmlBody += '</table>';
+htmlBody += '<br/><i>Generated on ' + String.valueOf(Datetime.now()) + '</i></body></html>';
+
+// Step 3: Send email
+Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+mail.setToAddresses(new String[] { 'bhallamuneesh@meta.com' }); // Change if needed
+mail.setSubject('Salesforce CPQ License Usage Report');
+mail.setHtmlBody(htmlBody);
+Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+
+System.debug('✅ CPQ license report email sent.');

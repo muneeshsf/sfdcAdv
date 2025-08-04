@@ -1,0 +1,111 @@
+==== VeryGood SQL
+SELECT Parent.Profile.UserLicense.Name,ParentId,Parent.Profile.name,Id,PermissionsCreate,PermissionsDelete,PermissionsEdit,PermissionsModifyAllRecords,PermissionsRead,
+PermissionsViewAllRecords,SobjectType FROM ObjectPermissions
+
+
+SELECT PermissionsRead,SobjectType,ParentId,Parent.label,Parent.IsOwnedByProfile,Parent.ProfileId,Parent.Profile.name,
+Parent.Profile.UserLicense.Name FROM ObjectPermissions where Parent.Profile.UserLicense.Name='Salesforce' and PermissionsRead=true];
+
+
+
+select id,name,UserLicense.Name,(select id,name from Users) from Profile where UserLicense.Name='Salesforce'
+
+
+
+
+select distinct Parent.Profile.UserLicense.Name from  ObjectPermissions
+
+
+The following sample query returns the records, whether the queried user has read and transfer access to each record, and the user’s maximum access level to each record.
+
+SELECT RecordId, HasReadAccess, HasTransferAccess, MaxAccessLevel
+     FROM UserRecordAccess
+     WHERE UserId = [single ID]
+     AND RecordId = [single ID]      //or Record IN [list of IDs]
+The following query returns the records to which a queried user has read access.
+
+SELECT RecordId
+     FROM UserRecordAccess
+     WHERE UserId = [single ID]
+     AND RecordId = [single ID]      //or Record IN [list of IDs]
+     AND HasReadAccess = true
+Using API version 30.0 and later, UserRecordAccess is a foreign key on the records. You can’t filter by or provide the UserId or RecordId fields when using this object as a lookup or foreign key. The previous sample queries can be run as:
+
+SELECT Id, Name, UserRecordAccess.HasReadAccess, UserRecordAccess.HasTransferAccess, UserRecordAccess.MaxAccessLevel 
+      FROM Account
+SELECT Id, Name, UserRecordAccess.HasReadAccess 
+      FROM Account
+
+
+
+SELECT Id, SObjectType, PermissionsRead, Parent.label, Parent.IsOwnedByProfile
+FROM ObjectPermissions
+WHERE (ParentId
+IN (SELECT PermissionSetId
+FROM PermissionSetAssignment
+WHERE Assignee.Name = 'Muni Bhalla'))
+AND
+(PermissionsRead = true)
+AND
+(SobjectType = 'Account')
+
+
+So for example, this SOQL will list all permission set assignments:
+
+select Assignee.Name, PermissionSet.Name
+from PermissionSetAssignment
+order by Assignee.Name, PermissionSet.Name
+
+Here are few samples using SOQL to query permission set:
+
+Show all User with Profile assigned and Permission Set assigned to that user:
+SELECT p.Id, p.Assignee.Name, p.Assignee.Profile.Name, p.PermissionSet.Label
+FROM PermissionSetAssignment p
+WHERE p.PermissionSet.IsOwnedByProfile = false AND p.Assignee.Profile.Name = 'Sales Reps'
+ORDER BY p.AssigneeId, p.PermissionSetId
+
+Show all User with View Encrypted Data permission:
+SELECT p.Id, p.Assignee.Name, p.Assignee.Profile.Name, p.PermissionSet.Label
+FROM PermissionSetAssignment p
+WHERE p.PermissionSet.PermissionsViewEncryptedData = true
+
+Show all User have read access to Account and which permission give the access:
+SELECT Assignee.Name, PermissionSet.isOwnedByProfile, PermissionSet.Profile.Name, PermissionSet.Label
+FROM PermissionSetAssignment
+WHERE PermissionSetId
+IN (SELECT ParentId FROM ObjectPermissions WHERE SObjectType = 'Account' AND PermissionsRead = true)
+ORDER BY PermissionSet.Profile.Name
+
+Show permission a user has for Account and which permissions give that access:
+SELECT Id, SObjectType, PermissionsRead, PermissionsCreate, PermissionsEdit, PermissionsDelete, PermissionsViewAllRecords, PermissionsModifyAllRecords, Parent.label, Parent.IsOwnedByProfile, Parent.ProfileId
+FROM ObjectPermissions
+WHERE (ParentId IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE Assignee.Name = 'Johan Yu'))
+AND (SobjectType = 'Account')
+
+
+
+Nesting Field Permissions
+You can nest FieldPermissions in a PermissionSet query. For example, the following returns any permission sets where “Edit Read Only Fields” is true. Additionally, the result set will include both the “Read” and “Edit” field permission on the Merchandise object. This is done by nesting the SOQL with a field permission query using the relationship name for field permissions: FieldPerms.
+SELECT PermissionsEditReadonlyFields,
+(SELECT SobjectType, Field, PermissionsRead, PermissionsEdit
+FROM FieldPerms
+WHERE SobjectType = 'Merchandise__c')
+FROM PermissionSet
+WHERE PermissionsEditReadonlyFields = true
+As a result, it’s possible to traverse the relationship between the PermissionSet and any child related objects (in this case, FieldPermissions). You can do this from the PermissionSet object by using the child relationship (ObjectPerms, FieldPerms, and so on) or from the child object by referencing the PermissionSet with Parent.permission_set_attribute.
+
+It’s important to consider when to use a conditional WHERE statement to restrict the result set. To query based on an attribute on the permission set object, nest the SOQL with the child relationship. However, to query based on an attribute on the child object, you must reference the permission set parent attribute in your query.
+
+The following two queries return the same columns with different results, based on whether you use the child relationship or parent notation.
+SELECT PermissionsEditReadonlyFields,
+(SELECT SobjectType, Field, PermissionsRead, PermissionsEdit
+FROM FieldPerms
+WHERE SobjectType = 'Merchandise__c')
+FROM PermissionSet
+WHERE PermissionsEditReadonlyFields = true
+versus:
+SELECT SobjectType, Field, PermissionsRead, PermissionsEdit, Parent.Name,
+   Parent.PermissionsEditReadonlyFields
+FROM FieldPermissions
+WHERE SObjectType='Merchandise__c'
+See Also:

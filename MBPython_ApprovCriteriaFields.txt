@@ -1,0 +1,30 @@
+import os
+import xml.etree.ElementTree as ET
+import re
+import csv
+
+input_folder = "C:\\Muneesh\\ApprovalProcesses\\unpackaged\\approvalProcesses"
+ns = {"sf": "http://soap.sforce.com/2006/04/metadata"}
+output_file = "C:\\Muneesh\\entry_criteria_results.csv"
+
+with open(output_file, "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["File Name", "Entry Criteria Found", "Field Names"])
+    for filename in os.listdir(input_folder):
+        if filename.endswith("approvalProcess-meta.xml") and filename.startswith("CoMarketing__c"):
+            print(f"Processing file: {filename}")
+            filepath = os.path.join(input_folder, filename)
+            try:
+                tree = ET.parse(filepath)
+                root = tree.getroot()
+                entry_criteria = root.find(".//sf:entryCriteria/sf:formula", ns)
+                if entry_criteria is not None:
+                    formula = entry_criteria.text
+                    field_names = re.findall(r'[A-Za-z0-9_]+__c', formula)
+                    writer.writerow([filename, "Yes", ", ".join(set(field_names))])
+                else:
+                    writer.writerow([filename, "No", ""])
+            except ET.ParseError as e:
+                writer.writerow([filename, "Error", str(e)])
+
+print(f"Results written to {output_file}")

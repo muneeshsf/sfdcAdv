@@ -1,0 +1,91 @@
+// Define helper class for sorting and formatting
+public class OrgLimitRow implements Comparable {
+    public String name;
+    public Integer max;
+    public Integer remaining;
+    public Decimal percentRemaining;
+
+    public OrgLimitRow(String name, Integer max, Integer remaining) {
+        this.name = name;
+        this.max = max;
+        this.remaining = remaining;
+        if (max != null && max > 0 && remaining != null) {
+            this.percentRemaining = ((Decimal.valueOf(remaining) / Decimal.valueOf(max)) * 100).setScale(2);
+        } else {
+            this.percentRemaining = null;
+        }
+    }
+
+    public Integer compareTo(Object other) {
+        OrgLimitRow b = (OrgLimitRow) other;
+
+        if (this.percentRemaining == null && b.percentRemaining == null) return 0;
+        if (this.percentRemaining == null) return 1;
+        if (b.percentRemaining == null) return -1;
+
+        if (this.percentRemaining < b.percentRemaining) return -1;
+        if (this.percentRemaining > b.percentRemaining) return 1;
+        return 0;
+    }
+}
+
+// Build HTTP request to REST API
+HttpRequest req = new HttpRequest();
+String instance = System.Url.getOrgDomainUrl().toExternalForm();
+req.setEndpoint(instance + '/services/data/v62.0/limits');
+req.setMethod('GET');
+req.setHeader('Authorization', 'Bearer ' + UserInfo.getSessionId());
+req.setHeader('Content-Type', 'application/json');
+
+Http http = new Http();
+HttpResponse res = http.send(req);
+
+if (res.getStatusCode() == 200) {
+    Map<String, Object> rawLimits = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+
+    // Convert to sortable list
+    List<OrgLimitRow> limitRows = new List<OrgLimitRow>();
+    for (String key : rawLimits.keySet()) {
+        Map<String, Object> info = (Map<String, Object>) rawLimits.get(key);
+        Integer max = (Integer) info.get('Max');
+        Integer remaining = (Integer) info.get('Remaining');
+        limitRows.add(new OrgLimitRow(key, max, remaining));
+    }
+
+    // Sort by % remaining (lowest to highest)
+    limitRows.sort();
+
+    // Build HTML email body
+    String htmlBody = '<html><body>';
+    htmlBody += '<h2>Salesforce Org Limits Report (Sorted by % Remaining)</h2>';
+    htmlBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
+    htmlBody += '<tr style="background-color:#dddddd;font-weight:bold;">'
+             + '<th>Limit Name</th><th>Max</th><th>Remaining</th><th>% Remaining</th></tr>';
+
+    for (OrgLimitRow row : limitRows) {
+        String color = (row.percentRemaining != null && row.percentRemaining < 25) ? '#ffcccc' :
+                       (row.percentRemaining != null && row.percentRemaining < 50) ? '#fff4cc' : '#ccffcc';
+
+        htmlBody += '<tr style="background-color:' + color + '">'
+                 + '<td>' + row.name + '</td>'
+                 + '<td>' + String.valueOf(row.max) + '</td>'
+                 + '<td>' + String.valueOf(row.remaining) + '</td>'
+                 + '<td>' + (row.percentRemaining != null ? row.percentRemaining + '%' : 'N/A') + '</td>'
+                 + '</tr>';
+    }
+
+    htmlBody += '</table>';
+    htmlBody += '<br/><i>Generated on ' + String.valueOf(Datetime.now()) + '</i></body></html>';
+
+    // Send email
+    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    mail.setToAddresses(new String[] { 'bhallamuneesh@meta.com' }); // Change as needed
+    mail.setSubject('Salesforce Org Limits - Sorted by % Remaining');
+    mail.setHtmlBody(htmlBody);
+    Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+
+    System.debug('✅ Org limits report email sent successfully.');
+
+} else {
+    System.debug('❌ Failed to fetch limits. Status: ' + res.getStatusCode() + ', Body: ' + res.getBody());
+}

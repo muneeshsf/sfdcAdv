@@ -1,0 +1,74 @@
+// STEP 1: Get Profiles with "API Only User" permission
+List<Profile> apiProfiles = [
+    SELECT Id, Name FROM Profile WHERE PermissionsApiUserOnly = true
+];
+Set<Id> apiProfileIds = new Set<Id>();
+for (Profile p : apiProfiles) apiProfileIds.add(p.Id);
+
+// STEP 2: Get users by profile or "API" in name
+List<User> apiUsers = [
+    SELECT Id, Name, Username, Email, IsActive, LastLoginDate, CreatedDate,
+           Manager.Name, Profile.Name, ProfileId
+    FROM User
+    WHERE ProfileId IN :apiProfileIds OR Name LIKE '%API%'
+];
+
+// STEP 3: Map UserId → List of PSL IDs (no label available)
+Map<Id, List<String>> userToPsls = new Map<Id, List<String>>();
+for (UserPackageLicense upl : [SELECT UserId, PackageLicenseId FROM UserPackageLicense]) {
+    if (!userToPsls.containsKey(upl.UserId)) userToPsls.put(upl.UserId, new List<String>());
+    userToPsls.get(upl.UserId).add(upl.PackageLicenseId);
+}
+
+// STEP 4: Count per Profile and PSL
+Map<String, Integer> profileCounts = new Map<String, Integer>();
+Map<String, Integer> pslCounts = new Map<String, Integer>();
+for (User u : apiUsers) {
+    profileCounts.put(u.Profile.Name, 1 + (profileCounts.get(u.Profile.Name) != null ? profileCounts.get(u.Profile.Name) : 0));
+    if (userToPsls.containsKey(u.Id)) {
+        for (String pslId : userToPsls.get(u.Id)) {
+            pslCounts.put(pslId, 1 + (pslCounts.get(pslId) != null ? pslCounts.get(pslId) : 0));
+        }
+    }
+}
+
+// STEP 5: Build CSV
+String csv = 'Name,Username,Email,Profile,Manager,IsActive,LastLoginDate,CreatedDate,PSL_IDs\n';
+for (User u : apiUsers) {
+    String manager = u.Manager != null ? u.Manager.Name : '—';
+    String lastLogin = u.LastLoginDate != null ? String.valueOf(u.LastLoginDate) : '—';
+    String created = String.valueOf(u.CreatedDate);
+    String psls = userToPsls.containsKey(u.Id) ? String.join(userToPsls.get(u.Id), ';') : '—';
+
+    csv += '"' + u.Name + '","' + u.Username + '","' + u.Email + '","' +
+           u.Profile.Name + '","' + manager + '","' + u.IsActive + '","' +
+           lastLogin + '","' + created + '","' + psls + '"\n';
+}
+
+// STEP 6: HTML summary (grouped by profile + PSL ID)
+String html = '<html><body><h2>API Users Summary Report</h2>';
+html += '<h3>By Profile</h3><table border="1"><tr><th>Profile</th><th>User Count</th></tr>';
+for (String profile : profileCounts.keySet()) {
+    html += '<tr><td>' + profile + '</td><td>' + profileCounts.get(profile) + '</td></tr>';
+}
+html += '</table>';
+
+html += '<h3>By Permission Set License ID</h3><table border="1"><tr><th>PSL ID</th><th>User Count</th></tr>';
+for (String pslId : pslCounts.keySet()) {
+    html += '<tr><td>' + pslId + '</td><td>' + pslCounts.get(pslId) + '</td></tr>';
+}
+html += '</table>';
+html += '<br><p><b>Total API Users:</b> ' + apiUsers.size() + '</p></body></html>';
+
+// STEP 7: Email with CSV attachment
+Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+attachment.setFileName('API_Users_Report.csv');
+attachment.setBody(Blob.valueOf(csv));
+attachment.setContentType('text/csv');
+
+Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+mail.setToAddresses(new String[] { UserInfo.getUserEmail() });
+mail.setSubject('API Users Report with Profile and PSL Summary');
+mail.setHtmlBody(html);
+mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });

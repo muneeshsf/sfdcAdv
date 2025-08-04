@@ -1,0 +1,37 @@
+Map<String, Schema.SObjectType> gd = Schema.getGlobalDescribe();
+String query = '';  
+///string path =+'c:\\sfdc\\ProdCustomSettings\\';
+string path =+ 'C:\\SFDC\\CustomSettingsExport\\CSV\\';
+for(String objectName :gd.keySet()){
+      Schema.SObjectType result=gd.get(objectName);
+      if(result.getDescribe().isCustomSetting()){
+              //System.debug(objectName);
+            query += 'sfdx force:data:soql:query -q ' + '"SELECT ';  
+              // Grab the fields from the describe method and append them to the queryString one by one.
+             Map<String, Schema.SObjectField> objectFields =result.getDescribe().fields.getMap();
+             for(String s : objectFields.keySet()) {
+                    query += ' ' + s + ',';
+               }
+               if (query.subString(query.Length()-1,query.Length()) == ','){
+                   query = query.subString(0,query.Length()-1);
+               }
+               query += ' FROM ' + objectName +'"'+' -r csv >'+path+objectName+'.csv'+'\n\n';
+      }
+}
+
+Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
+blob csvBlob = Blob.valueOf(query);
+string csvname= 'CustomSettings_SOQLs_PROD.csv';
+csvAttc.setFileName(csvname);
+csvAttc.setBody(csvBlob);
+Messaging.SingleEmailMessage email =new Messaging.SingleEmailMessage();
+String[] toAddresses = new list<string> {'muneesh_bhalla@mcafee.com'};
+String subject ='Prod : All Custom Settings Extract SOQLs ' + path;
+email.setSubject(subject);
+email.setToAddresses( toAddresses );
+email.setPlainTextBody('Prod : All Custom Settings Extract SOQLs :string path =+');
+email.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
+Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[] {email});
+
+
+

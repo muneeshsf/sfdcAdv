@@ -1,0 +1,77 @@
+String userEmail1 = 'bhallamuneesh@meta.com';  // Replace
+String userEmail2 = 'bhallamuneesh@meta.com';  // Replace
+
+// Configurable: only these objects will be scanned
+Set<String> targetObjects = new Set<String>{ 'Account', 'Contact', 'Opportunity' };
+
+// === Setup reusable maps
+Map<String, Boolean> map1 = new Map<String, Boolean>();
+Map<String, Boolean> map2 = new Map<String, Boolean>();
+Map<String, Map<String, Boolean>> flsPerms1 = new Map<String, Map<String, Boolean>>();
+Map<String, Map<String, Boolean>> flsPerms2 = new Map<String, Map<String, Boolean>>();
+
+// === Load users
+User user1 = [SELECT Id, Email FROM User WHERE Email = :userEmail1 LIMIT 1];
+User user2 = [SELECT Id, Email FROM User WHERE Email = :userEmail2 LIMIT 1];
+
+// === Find Permission Sets assigned
+Map<Id, Id> psToUserMap = new Map<Id, Id>();
+for (PermissionSetAssignment psa : [
+    SELECT AssigneeId, PermissionSetId
+    FROM PermissionSetAssignment
+    WHERE AssigneeId IN :new List<Id>{user1.Id, user2.Id}
+]) {
+    psToUserMap.put(psa.PermissionSetId, psa.AssigneeId);
+}
+
+// === Query Field Permissions
+for (FieldPermissions fp : [
+    SELECT SObjectType, Field, PermissionsRead, PermissionsEdit, ParentId
+    FROM FieldPermissions
+    WHERE ParentId IN :psToUserMap.keySet()
+    AND SObjectType IN :targetObjects
+]) {
+    String key = fp.SObjectType + '.' + fp.Field;
+    Id userId = psToUserMap.get(fp.ParentId);
+
+    map1.clear();
+    map1.put('FLSRead', fp.PermissionsRead);
+    map1.put('FLSEdit', fp.PermissionsEdit);
+
+    if (userId == user1.Id && !flsPerms1.containsKey(key)) flsPerms1.put(key, new Map<String, Boolean>(map1));
+    else if (userId == user2.Id && !flsPerms2.containsKey(key)) flsPerms2.put(key, new Map<String, Boolean>(map1));
+}
+
+// === Build CSV
+String csv = '=== Field-Level Permissions (FLS) ===\n';
+csv += 'Permission,Object.Field,User 1,User 2\n';
+Set<String> allFLSKeys = new Set<String>();
+allFLSKeys.addAll(flsPerms1.keySet()); allFLSKeys.addAll(flsPerms2.keySet());
+
+for (String key : allFLSKeys) {
+    map1.clear(); map2.clear();
+    if (flsPerms1.containsKey(key)) map1.putAll(flsPerms1.get(key));
+    if (flsPerms2.containsKey(key)) map2.putAll(flsPerms2.get(key));
+    Set<String> perms = new Set<String>();
+    perms.addAll(map1.keySet()); perms.addAll(map2.keySet());
+    for (String p : perms) {
+        csv += p + ',' + key + ',' + String.valueOf(map1.get(p)) + ',' + String.valueOf(map2.get(p)) + '\n';
+    }
+}
+
+// === Send CSV Email
+Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+email.setToAddresses(new String[] { UserInfo.getUserEmail() });
+email.setSubject('FLS Permission Comparison Report (Limited Objects)');
+email.setPlainTextBody('Attached is the field-level permission comparison.');
+Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+attachment.setFileName('FLS_Permissions_Comparison.csv');
+attachment.setBody(Blob.valueOf(csv));
+attachment.setContentType('text/csv');
+email.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+
+Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
+
+System.debug('✅ FLS-only report sent to: ' + UserInfo.getUserEmail());
+
+

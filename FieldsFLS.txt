@@ -1,0 +1,72 @@
+Decimal remain ;
+Decimal remainPer;
+List<System.OrgLimit> limits = OrgLimits.getAll();
+for (System.OrgLimit aLimit: limits) {
+    remain = aLimit.getLimit()-aLimit.getValue();
+    remainPer=0;
+    if (aLimit.getLimit()> 0 && aLimit.getValue() > 0)
+    {
+      remainPer=((remain/aLimit.getLimit())*100);  
+      }
+    If (remainPer < 30 && aLimit.getValue() > 0)
+    {
+    System.debug('Limit Name : ' + aLimit.getName());
+    System.debug('Max : ' + aLimit.getLimit());
+    System.debug('Usage  : ' + aLimit.getValue());
+      System.debug('Usage Remain : ' + remain);
+    System.debug('%age Remain : ' + remainPer);
+      System.debug('Message : ' + aLimit.toString());   
+    }
+}
+
+
+
+=======================
+String myPS;
+String myrow;
+string myCSVFile = '';
+string emailAddress='bhallamuneesh@meta.com';
+
+List<String> Fields = new List<String>{'Plan__c.MR_Funding_1_Name__c','Plan__c.MR_Funding_2_Name__c','Plan__c.MR_Funding_3_Name__c','Plan__c.Q1_Accessories_Attach_Rate__c',
+    'Plan__c.Q1_Accessories_Gross_Margin__c','Plan__c.Q1_Accessories_MSRP__c','Plan__c.Q1_Accessories_Product_Margin__c','Plan__c.Q1_Accessories_Trade_Price__c','Plan__c.Q1_Accessories_Units__c',
+    'Plan__c.Q1_Headset_Gross_Margin__c','Plan__c.Q1_Headset_MSRP__c','Plan__c.Q1_Headset_Product_Margin__c','Plan__c.Q1_Headset_Trade_Price__c','Plan__c.Q1_Headset_Units__c',
+    'Plan__c.Q1_MR_Comktg_PDF_No_Margin_Impact__c','Plan__c.Q1_MR_Other_Funding_1__c','Plan__c.Q1_MR_Other_Funding_2__c','Plan__c.Q1_MR_Other_Funding_3__c','Plan__c.Q1_MR_Other_Funding_1__c',
+    'Plan__c.Q1_MR_Total_Comarketing_PDF__c','Plan__c.Q1_MR_Total_Gross_Margin__c','Plan__c.Q1_MR_Total_MSRP__c','Plan__c.Q1_MR_Total_Margin__c','Plan__c.Q1_MR_Total_Net_Margin__c','Plan__c.Q1_MR_Total_PIR__c',
+    'Plan__c.Q1_MR_Total_PIR_Payment_of_HMD_Sales__c','Plan__c.Q1_MR_Total_Product_Margin__c','Plan__c.Q1_MR_Total_Trade_Price__c','Plan__c.Q1_MR_Wearables_Comktg_PDF_No_Mrgn_Impct__c',
+    'Plan__c.Q1_MR_Wearables_Gross_Margin__c','Plan__c.Q1_MR_Wearables_MSRP__c','Plan__c.Q1_MR_Wearables_Product_Margin__c','Plan__c.Q1_MR_Wearables_Comktg_PDF_No_Mrgn_Impct__c',
+    'Plan__c.Q1_MR_Wearables_Total_Margin__c','Plan__c.Q1_MR_Wearables_Total_Net_Margin__c','Plan__c.Q1_MR_Wearables_Total_Other_Funding__c','Plan__c.Q1_MR_Wearables_Total_PIR__c',
+    'Plan__c.Q1_MR_Wearables_Trade_Price__c','Plan__c.Q1_Wearables_Comktg_PDF_No_Margin_Impact__c','Plan__c.Q1_Wearables_Gross_Margin__c','Plan__c.Q1_Wearables_MSRP__c','Plan__c.Q1_Wearables_Other_Funding_1__c',
+    'Plan__c.Q4_Wearables_Other_Funding_2__c','Plan__c.Q1_Wearables_Other_Funding_3__c','Plan__c.Q1_Wearables_Product_Margin__c','Plan__c.Q1_Wearables_Total_Other_Funding__c','Plan__c.Q1_Wearables_Total_Comarketing_PDF__c','Plan__c.Q1_Wearables_Total_Margin__c','Plan__c.Q1_Wearables_Total_Net_Margin__c','Plan__c.Q1_Wearables_Trade_Price__c','Plan__c.Q1_Wearables_Units__c','Plan__c.Q2_Wearables_Total_Other_Funding__c','Plan__c.Q2_Accessories_Attach_Rate__c','Plan__c.Q2_Accessories_Gross_Margin__c','Plan__c.Q2_Accessories_MSRP__c','Plan__c.Q2_Accessories_Product_Margin__c','Plan__c.Q2_Accessories_Trade_Price__c','Plan__c.Q2_Accessories_Units__c','Plan__c.Q2_Headset_Gross_Margin__c','Plan__c.Q2_Headset_MSRP__c','Plan__c.Q2_Headset_Product_Margin__c','Plan__c.Q2_Headset_Trade_Price__c','Plan__c.Q2_Headset_Units__c','Plan__c.Q2_MR_Comktg_PDF_No_Margin_Impact__c','Plan__c.Q2_MR_Other_Funding_1__c','Plan__c.Q2_MR_Other_Funding_2__c','Plan__c.Q2_MR_Other_Funding_2__c','Plan__c.Q2_MR_Other_Funding_1__c','Plan__c.Q2_MR_Total_Comarketing_PDF__c','Plan__c.Q2_MR_Total_Gross_Margin__c','Plan__c.Q2_MR_Total_MSRP__c','Plan__c.Q2_MR_Total_Margin__c','Plan__c.Q2_MR_Total_Net_Margin__c','Plan__c.Q2_MR_Total_PIR__c','Plan__c.Q2_MR_Total_PIR_Payment_of_HMD_Sales__c','Plan__c.Q2_MR_Total_Product_Margin__c','Plan__c.Q2_MR_Total_Trade_Price__c','Plan__c.Q2_MR_Wearables_Comktg_PDF_No_Mrgn_Impct__c','Plan__c.Q2_MR_Wearables_Gross_Margin__c','Plan__c.Q2_MR_Wearables_MSRP__c','Plan__c.Q2_MR_Wearables_Product_Margin__c','Plan__c.Q2_MR_Wearables_Comktg_PDF_No_Mrgn_Impct__c','Plan__c.Q2_MR_Wearables_Total_Margin__c','Plan__c.Q2_MR_Wearables_Total_Net_Margin__c','Plan__c.Q2_MR_Wearables_Total_Other_Funding__c','Plan__c.Q2_MR_Wearables_Total_PIR__c','Plan__c.Q2_MR_Wearables_Trade_Price__c','Plan__c.Q2_Wearables_Comktg_PDF_No_Margin_Impact__c','Plan__c.Q2_Wearables_Gross_Margin__c','Plan__c.Q2_Wearables_MSRP__c','Plan__c.Q2_Wearables_Other_Funding_1__c','Plan__c.Q2_Wearables_Other_Funding_2__c','Plan__c.Q2_Wearables_Other_Funding_3__c','Plan__c.Q2_Wearables_Product_Margin__c','Plan__c.Q2_Wearables_Total_Comarketing_PDF__c','Plan__c.Q2_Wearables_Total_Margin__c','Plan__c.Q2_Wearables_Total_Net_Margin__c','Plan__c.Q2_Wearables_Trade_Price__c','Plan__c.Q2_Wearables_Units__c','Plan__c.Q3_Accessories_Attach_Rate__c','Plan__c.Q3_Accessories_Gross_Margin__c','Plan__c.Q3_Accessories_MSRP__c','Plan__c.Q3_Accessories_Product_Margin__c','Plan__c.Q3_Accessories_Trade_Price__c','Plan__c.Q3_Accessories_Units__c','Plan__c.Q3_Headset_Gross_Margin__c','Plan__c.Q3_Headset_MSRP__c','Plan__c.Q3_Headset_Product_Margin__c','Plan__c.Q3_Headset_Trade_Price__c','Plan__c.Q3_Headset_Units__c','Plan__c.Q3_MR_Comktg_PDF_No_Margin_Impact__c','Plan__c.Q3_MR_Other_Funding_1__c','Plan__c.Q3_MR_Other_Funding_2__c','Plan__c.Q3_MR_Other_Funding_2__c','Plan__c.Q3_MR_Other_Funding_1__c','Plan__c.Q3_MR_Total_Comarketing_PDF__c','Plan__c.Q3_MR_Total_Gross_Margin__c','Plan__c.Q3_MR_Total_MSRP__c','Plan__c.Q3_MR_Total_Margin__c','Plan__c.Q3_MR_Total_Net_Margin__c','Plan__c.Q3_MR_Total_PIR__c','Plan__c.Q3_MR_Total_PIR_Payment_of_HMD_Sales__c','Plan__c.Q3_MR_Total_Product_Margin__c','Plan__c.Q3_MR_Total_Trade_Price__c','Plan__c.Q3_MR_Wearables_Comktg_PDF_No_Mrgn_Impct__c','Plan__c.Q3_MR_Wearables_Gross_Margin__c','Plan__c.Q3_MR_Wearables_MSRP__c','Plan__c.Q3_MR_Wearables_Product_Margin__c','Plan__c.Q3_MR_Wearables_Comktg_PDF_No_Mrgn_Impct__c','Plan__c.Q3_MR_Wearables_Total_Margin__c','Plan__c.Q3_MR_Wearables_Total_Net_Margin__c','Plan__c.Q3_MR_Wearables_Total_Other_Funding__c','Plan__c.Q3_MR_Wearables_Total_PIR__c','Plan__c.Q3_MR_Wearables_Trade_Price__c','Plan__c.Q3_Wearables_Comktg_PDF_No_Margin_Impact__c','Plan__c.Q3_Wearables_Gross_Margin__c','Plan__c.Q3_Wearables_MSRP__c','Plan__c.Q2_Wearables_Other_Funding_1__c','Plan__c.Q3_Wearables_Other_Funding_2__c','Plan__c.Q3_Wearables_Other_Funding_3__c','Plan__c.Q3_Wearables_Product_Margin__c','Plan__c.Q3_Wearables_Total_Other_Funding__c','Plan__c.Q3_Wearables_Total_Comarketing_PDF__c','Plan__c.Q3_Wearables_Total_Margin__c','Plan__c.Q3_Wearables_Total_Net_Margin__c','Plan__c.Q3_Wearables_Trade_Price__c','Plan__c.Q3_Wearables_Units__c','Plan__c.Q4_Accessories_Attach_Rate__c','Plan__c.Q4_Accessories_Gross_Margin__c','Plan__c.Q4_Accessories_MSRP__c','Plan__c.Q4_Accessories_Product_Margin__c','Plan__c.Q4_Accessories_Trade_Price__c','Plan__c.Q4_Accessories_Units__c','Plan__c.Q4_Headset_Gross_Margin__c','Plan__c.Q4_Headset_MSRP__c','Plan__c.Q4_Headset_Product_Margin__c','Plan__c.Q4_Headset_Trade_Price__c','Plan__c.Q4_Headset_Units__c','Plan__c.Q4_MR_Comktg_PDF_No_Margin_Impact__c','Plan__c.Q4_MR_Other_Funding_1__c','Plan__c.Q4_MR_Other_Funding_2__c','Plan__c.Q4_MR_Other_Funding_2__c','Plan__c.Q4_MR_Other_Funding_1__c','Plan__c.Q4_MR_Total_Comarketing_PDF__c','Plan__c.Q4_MR_Total_Gross_Margin__c','Plan__c.Q4_MR_Total_MSRP__c','Plan__c.Q4_MR_Total_Margin__c','Plan__c.Q4_MR_Total_Net_Margin__c','Plan__c.Q4_MR_Total_PIR__c','Plan__c.Q4_MR_Total_PIR_Payment_of_HMD_Sales__c','Plan__c.Q4_MR_Total_Product_Margin__c','Plan__c.Q4_MR_Total_Trade_Price__c','Plan__c.Q4_MR_Wearables_Comktg_PDF_No_Mrgn_Impct__c','Plan__c.Q4_MR_Wearables_Gross_Margin__c','Plan__c.Q4_MR_Wearables_MSRP__c','Plan__c.Q4_MR_Wearables_Product_Margin__c','Plan__c.Q4_MR_Wearables_Comktg_PDF_No_Mrgn_Impct__c','Plan__c.Q4_MR_Wearables_Total_Margin__c','Plan__c.Q4_MR_Wearables_Total_Net_Margin__c','Plan__c.Q4_MR_Wearables_Total_Other_Funding__c','Plan__c.Q4_MR_Wearables_Total_PIR__c','Plan__c.Q4_MR_Wearables_Trade_Price__c','Plan__c.Q4_Wearables_Comktg_PDF_No_Margin_Impact__c','Plan__c.Q4_Wearables_Gross_Margin__c','Plan__c.Q4_Wearables_MSRP__c','Plan__c.Q3_Wearables_Other_Funding_1__c','Plan__c.Q4_Wearables_Other_Funding_2__c','Plan__c.Q4_Wearables_Other_Funding_3__c','Plan__c.Q4_Wearables_Product_Margin__c','Plan__c.Q4_Wearables_Total_Other_Funding__c','Plan__c.Q4_Wearables_Total_Comarketing_PDF__c','Plan__c.Q4_Wearables_Total_Margin__c','Plan__c.Q4_Wearables_Total_Net_Margin__c','Plan__c.Q4_Wearables_Trade_Price__c','Plan__c.Q4_Wearables_Units__c','Plan__c.Wearables_Funding_1_Name__c','Plan__c.Wearables_Funding_2_Name__c','Plan__c.Wearables_Funding_3_Name__c'};
+system.debug('Size :'+Fields.size());
+
+List<PermissionSet> PS2Use = [select id from PermissionSet where IsOwnedByProfile=true and license.name not in ('Partner Community','Guest User License','Chatter External','Chatter Free') and profile.name not in 
+('Authenticated Website','BMG Partner','BMG Partner Clone','BMG Tech Partner','Customer Community Login User','Customer Portal Manager Custom','Facebook@Work - Partner','Facebook Vendor','Novi L1/L2 Community User','Overage Customer Portal Manager Custom','Overage High Volume Customer Portal User','Partner Community User','RL Distributor','RL Reseller','Service Claims Dealer'
+ ,'TradeOps Community User','AAA Facebook Marketo API ---------------------- Please Uncheck for Field Level Security here ================>>>IP Range>>') ];			
+system.debug('Size :'+PS2Use.size());
+myCSVFile='ParentId'+','+'Field'+','+'PermissionsEdit'+','+'PermissionsRead'+','+'SobjectType'+ '\n';
+for (PermissionSet objPS:PS2Use )
+{
+ myPS  = objPS.id; 
+  for (string F2USe :Fields  )  
+  {
+   myrow =  myPS+',' + F2USe+','+'TRUE'+','+'TRUE'+','+'Plan__c';
+     myCSVFile += myRow + '\n';
+     
+  }
+}
+Messaging.EmailFileAttachment csvAttachment = new Messaging.EmailFileAttachment();
+Blob myBlob = blob.valueOf(myCSVFile);
+String myName = 'ProfileFieldLoadData.csv';
+csvAttachment.setFileName(myName);
+csvAttachment.setBody(myBlob);
+Messaging.SingleEmailMessage myEmail = new Messaging.SingleEmailMessage();
+String[] toAddresses = new String[]{emailAddress};
+String subject = 'ProfileFieldLoadData.csv';
+myEmail.setSubject(subject);
+myEmail.setToAddresses(toAddresses);
+myEmail.setPlainTextBody('ProfileFieldLoadData.csv');
+myEmail.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttachment});
+Messaging.SendEmailResult[] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[]{myEmail});
+
+
+System.setPassword('0058V00000DxyV3', 'Test@12345678');

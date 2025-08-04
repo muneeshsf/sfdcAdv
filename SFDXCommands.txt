@@ -1,0 +1,78 @@
+sfdx force:org:display --target-org metaprod --verbose
+
+ Access Token      
+ Alias            metaprd
+ Api Version      64.0
+ Client Id        PlatformCLI
+ Connected Status Connected
+ Id                
+ Instance Url     https://fb.my.salesforce.com
+ Sfdx Auth Url    force://PlatformCLI::5Aep861Yij7AXt5Ce7kZ20dcSgXyVEqDtmQMsPzOGV.DPwOLxR7S9__EVtwN2OD14Or1grDrJYYtTR6D6_k2x3h@fb.my.salesforce.com
+ Username         bhallamuneesh@meta.com
+ 
+ 
+
+sfdx force:data:soql:query -q "select count(Email_of_Meta_Contact__c) from Lead" -r csv > c:\muneesh\lead_Email_of_Meta_Contact__c.csv
+
+=CONCAT($B$1,$F$1,A4,")",$G$1)
+Error (1): No default environment found. Use -o or --target-org to specify an environment.
+
+sfdx force:auth:web:login --setalias metaprod --instanceurl https://login.salesforce.com --set-default
+
+sfdx force:auth:web:login --alias metaprod --instance-url https://login.salesforce.com --set-default      <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,
+
+sfdx force:source:retrieve -m AuraDefinitionBundle,LightningComponentBundle,FLOW,ApexClass,ApexTrigger,ApexPage,NamedCredential
+
+================  SFDX CREATE USER   =====
+sf data import bulk --target-org metaprod --sobject User --file C:\Muneesh\MbTestUSer.csv    
+sf data import bulk --target-org metaprod --sobject User --file C:\Muneesh\MbTestUSer.csv
+ ───────────── Importing data (async) ─────────────
+
+ ✔ Creating ingest job 2.96s
+ ◼ Processing the job
+
+ Status: UploadComplete
+ Job Id: 750Kj00000hRYFmIAO (https://fb.my.salesforce.com/lightning/setup/AsyncApiJobStatus/page?address=%2F750Kj00000hRYFmIAO)
+ Elapsed Time: 2.98s
+
+Run "sf data import resume --job-id 750Kj00000hRYFmIAO" to resume the operation.
+
+
+sf data bulk results --job-id 750Kj00000hRYGUIA4 --target-org metaprd
+
+
+
+
+
+==============================================
+Select MetadataComponentId,MetadataComponentName,RefMetadataComponentName,RefMetadataComponentId,MetadataComponentType 
+from MetadataComponentDependency 
+
+
+C:\Users\bhallamuneesh>sfdx force:data:soql:query -q "select count(Email_of_Meta_Contact__c) from Lead" -r csv > c:\muneesh\lead_Email_of_Meta_Contact__c.csv
+Error (1): No default environment found. Use -o or --target-org to specify an environment.
+
+
+C:\Users\bhallamuneesh>sfdx force:auth:web:login --setalias metaprod --instanceurl https://login.salesforce.com --setdefaultusername
+Warning: The "--instanceurl" flag has been deprecated. Use "--instance-url | -r" instead.
+Warning: The "--setdefaultusername" flag has been deprecated. Use "--set-default | -s" instead.
+Warning: The "--setalias" flag has been deprecated. Use "--alias | -a" instead.
+Successfully authorized bhallamuneesh@meta.com with org ID 00DA0000000K9kFMAS
+
+
+select count(Vendor_Name__c) Vendor_Name__c,count(MasterRecordId) MasterRecordId from case 
+
+sfdx force:data:soql:query -q "select count(Rack__c),count(Row__c),count(Serial__c),count(Sub_Type__c),count(Suite__c),count(Total_Memory__c),
+count(SeRF_Asset_ID__c),count(LeanData__Status_Info__c),count(Building__c),count(Vendor_Name__c) Vendor_Name__c,count(MasterRecordId) MasterRecordId from case" -r csv > c:\muneesh\case.csv
+
+sfdx force:data:soql:query -q "select count(local_address_line_2__c) local_address_line_2__c,count(local_city__c) local_city__c, count(local_country__c) local_country__c, count(local_state__c) local_state__c from address" -r csv > c:\muneesh\address.csv
+-- Case 1
+
+below is bad
+
+sfdx force:data:soql:query -q "select count(Advertiser_Name__c) Advertiser_Name__c from case" -r csv > c:\muneesh\case.csv
+
+===============below done
+sfdx force:data:soql:query -q "select count(Last_Comment_Time__c) Last_Comment_Time__c,count(Order__c) Order__c,count(Facebook_User_ID__c) Facebook_User_ID__c,count(User_ID_from_Contact__c) User_ID_from_Contact__c,count(Violation_Type__c) Violation_Type__c,count(Date__c) Date__c,count(Enforcement_Type__c) Enforcement_Type__c,count(Inquiry_Quarter__c) Inquiry_Quarter__c,count(Commission_Inquiry_Type__c) Commission_Inquiry_Type__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Language__c) Language__c,count(Page_Ops_Request_Type__c) Page_Ops_Request_Type__c,count(Channel__c) Channel__c,count(Platform_Ops_Request_Type__c) Platform_Ops_Request_Type__c,count(API_Key__c) API_Key__c,count(Developer_UID__c) Developer_UID__c,count(Domain_URL__c) Domain_URL__c,count(App_ID__c) App_ID__c,count(App_URL__c) App_URL__c,count(Task_URL__c) Task_URL__c,count(Customer_Issue_Reason__c) Customer_Issue_Reason__c,count(Account_Ultimate_Parent__c) Account_Ultimate_Parent__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Resolved_Time__c) Resolved_Time__c,count(IO_Ad_Account__c) IO_Ad_Account__c,count(Status_of_Commission_Request__c) Status_of_Commission_Request__c,count(Action__c) Action__c,count(Partnership_Region__c) Partnership_Region__c from case" -r csv > c:\muneesh\case.csv

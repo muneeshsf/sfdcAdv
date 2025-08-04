@@ -1,0 +1,67 @@
+Id user1Id = '00512000004vRXuAAM'; // Replace with User 1's Id
+Id user2Id = '00512000005kucwAAA'; // Replace with User 2's Id
+
+// Get user profiles and roles
+User user1 = [SELECT Id, ProfileId, Profile.Name, UserRoleId, UserRole.Name 
+              FROM User 
+              WHERE Id = :user1Id];
+User user2 = [SELECT Id, ProfileId, Profile.Name, UserRoleId, UserRole.Name 
+              FROM User 
+              WHERE Id = :user2Id];
+
+String report = 'User Access Comparison Report\n\n';
+report += 'User 1 Profile: ' + user1.Profile.Name + '\n';
+report += 'User 2 Profile: ' + user2.Profile.Name + '\n';
+report += 'User 1 Role: ' + (user1.UserRole != null ? user1.UserRole.Name : 'None') + '\n';
+report += 'User 2 Role: ' + (user2.UserRole != null ? user2.UserRole.Name : 'None') + '\n\n';
+
+// Get permission sets
+List<PermissionSetAssignment> user1PermissionSets = [SELECT PermissionSetId, PermissionSet.Name 
+                                                    FROM PermissionSetAssignment 
+                                                    WHERE AssigneeId = :user1Id];
+List<PermissionSetAssignment> user2PermissionSets = [SELECT PermissionSetId, PermissionSet.Name 
+                                                    FROM PermissionSetAssignment 
+                                                    WHERE AssigneeId = :user2Id];
+
+report += 'User 1 Permission Sets: \n';
+for (PermissionSetAssignment psa : user1PermissionSets) {
+    report += psa.PermissionSet.Name + '\n';
+}
+
+report += '\nUser 2 Permission Sets: \n';
+for (PermissionSetAssignment psa : user2PermissionSets) {
+    report += psa.PermissionSet.Name + '\n';
+}
+
+// Compare permission sets
+Set<String> user1PermissionSetNames = new Set<String>();
+for (PermissionSetAssignment psa : user1PermissionSets) {
+    user1PermissionSetNames.add(psa.PermissionSet.Name);
+}
+
+Set<String> user2PermissionSetNames = new Set<String>();
+for (PermissionSetAssignment psa : user2PermissionSets) {
+    user2PermissionSetNames.add(psa.PermissionSet.Name);
+}
+
+Set<String> commonPermissionSets = new Set<String>(user1PermissionSetNames);
+commonPermissionSets.retainAll(user2PermissionSetNames);
+
+Set<String> uniqueUser1PermissionSets = new Set<String>(user1PermissionSetNames);
+uniqueUser1PermissionSets.removeAll(user2PermissionSetNames);
+
+Set<String> uniqueUser2PermissionSets = new Set<String>(user2PermissionSetNames);
+uniqueUser2PermissionSets.removeAll(user1PermissionSetNames);
+
+report += '\nCommon Permission Sets: ' + String.join(new List<String>(commonPermissionSets), ', ') + '\n';
+report += 'Unique User 1 Permission Sets: ' + String.join(new List<String>(uniqueUser1PermissionSets), ', ') + '\n';
+report += 'Unique User 2 Permission Sets: ' + String.join(new List<String>(uniqueUser2PermissionSets), ', ') + '\n';
+
+System.debug(report);
+
+// Send email
+Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+mail.setSubject('User Access Comparison Report');
+mail.setPlainTextBody(report);
+mail.setToAddresses(new String[] {UserInfo.getUserEmail()});
+Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });

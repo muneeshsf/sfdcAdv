@@ -1,0 +1,62 @@
+// Define the list of fields to check
+String[] fieldsToCheck = new String[]{'ParentId','Website','Type','Industry','Primary_site__c','Description__c','WA_Agreement_Signed__c','Account Owner','WP_Target_Account__c','Customer_Type__c','Stage_of_Journey__c','Ave_Daily_Conversation_Volume__c','Contract_Number__c','Contract_Integration_Id__c','External_ID__c','Verification_Status__c','priority_whatsapp__c','Original_Lead_Source_Detail__c','Business_Manager_ID__c','App_Id__c','SMB_Region__c','Is_GBG_BoB__c','iswhatsapp__c','WAPartnerTier__c','WA_Partner_Type__c','BMG_BMA_Signed__c','BMG_Partner_Screening_Complete__c','Is_BSP_Meta_Supplier__c','Eligible_For_BMA_Incentives__c','MDF_Enabled__c','BMG_Product_Line__c'};
+
+// Define the object type
+String objectType = 'Account';
+
+// Define the permission set IDs to check permissions for
+Set<Id> permissionSetIds = new Set<Id>{'0PS8V000000pMenQAE', '0PS8V000000pMenQAF'}; // Add more permission set IDs as needed
+
+String csvContent = 'Permission Set,Field,Edit Permission\n';
+
+for (Id permissionSetId : permissionSetIds) {
+    String permissionSetName = [SELECT Name FROM PermissionSet WHERE Id = :permissionSetId].Name;
+
+    // Query FieldPermissions
+    Map<String, FieldPermissions> fieldPermissionsMap = new Map<String, FieldPermissions>();
+    List<FieldPermissions> fieldPermissions = [
+        SELECT SobjectType, Field, PermissionsRead, PermissionsEdit 
+        FROM FieldPermissions 
+        WHERE ParentId = :permissionSetId AND SobjectType = :objectType AND Field IN :getFieldFullNames(fieldsToCheck, objectType)
+    ];
+    for (FieldPermissions fp : fieldPermissions) {
+        fieldPermissionsMap.put(fp.Field, fp);
+    }
+
+    // Check field-level security
+    for (String field : fieldsToCheck) {
+        String fieldName = objectType + '.' + field;
+        Boolean hasEditPermission = fieldPermissionsMap.containsKey(fieldName) && fieldPermissionsMap.get(fieldName).PermissionsEdit;
+        csvContent += permissionSetName + ',' + field + ',' + hasEditPermission + '\n';
+    }
+    csvContent += '\n';
+}
+
+sendEmailWithCsv('Field Permissions Report', 'Please find the field permissions report attached.', csvContent);
+
+public Set<String> getFieldFullNames(String[] fieldNames, String objectType) {
+    Set<String> fieldFullNames = new Set<String>();
+    for (String fieldName : fieldNames) {
+        fieldFullNames.add(objectType + '.' + fieldName);
+    }
+    return fieldFullNames;
+}
+
+public void sendEmailWithCsv(String subject, String body, String csvContent) {
+    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    mail.setSubject(subject);
+    mail.setPlainTextBody(body);
+    mail.setToAddresses(new String[] { UserInfo.getUserEmail() });
+    
+    // Create a CSV attachment
+    Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+    attachment.setContentType('text/csv');
+    attachment.setFileName('field_permissions_report.csv');
+    attachment.setBody(Blob.valueOf(csvContent));
+    
+    // Add the attachment to the email
+    mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+    
+    // Send the email
+    Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+}
