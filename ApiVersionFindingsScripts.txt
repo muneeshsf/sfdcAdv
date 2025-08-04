@@ -1,0 +1,59 @@
+EXTRACT ALL AGAIN   
+
+
+check  custom settings, cusom labels
+Apex callouts   req.setEndPoint
+
+Named cridentials
+select masterLabel, endpoint from NamedCredential 
+
+Done
+ApexCalss
+ApexPage
+ApexTrigger
+Components === Apex Components
+AuraComponent
+PermissionSetGroups ?????
+LWCAnything calling /services/data/v    <=================
+
+
+select Ads_API_Version__c, Endpoint_URL__c, User_Access_Token__c
+      from Ads_API_Setting__c
+      where Is_Active__c = true
+      and FB_App_Name__c = 'BMG Pricing Engine'
+      and Type__c = 'BMG Pricing Engine'
+      order by LastModifiedDate desc
+      limit 1
+	  
+	  SELECT Name, apiversion,CreatedBy.name,CreatedDate,LastModifiedBy.name,LastModifiedDate,NamespacePrefix,IsValid FROM ApexClass WHERE Status = 'Active'
+	  select id,name,ApiVersion,CreatedBy.name,CreatedDate,LastModifiedBy.name,LastModifiedDate, NamespacePrefix, ControllerType from ApexPage 
+	  
+	  select Id, Ads_API_Version__c, Endpoint_URL__c, User_Access_Token__c
+       from Ads_API_Setting__c
+       where Is_Active__c = true
+       and FB_App_Name__c = 'salesforce_workplace_api'
+       and Type__c = 'Workplace'
+       order by LastModifiedDate desc
+       limit 1
+	   
+	   
+	   select Id, Ads_API_Version__c, Endpoint_URL__c, User_Access_Token__c
+       from Ads_API_Setting__c
+       where Is_Active__c = true
+        
+       order by LastModifiedDate desc
+	   
+	SELECT Name, apiversion,CreatedBy.name,CreatedDate,LastModifiedBy.name,LastModifiedDate,NamespacePrefix,IsValid FROM ApexClass WHERE Status = 'Active'
+
+	select id,name,ApiVersion,CreatedBy.name,CreatedDate,LastModifiedBy.name,LastModifiedDate, NamespacePrefix, ControllerType from ApexPage 
+	
+	select id,name,ApiVersion,CreatedBy.name,CreatedDate,LastModifiedBy.name,LastModifiedDate, NamespacePrefix  from ApexTrigger  
+	
+	select id,AuraDefinitionBundle.DeveloperName,AuraDefinitionBundle.ApiVersion from AuraDefinition 
+	   
+	   
+	   sfdx force:source:retrieve -m AuraComponent,LWC,FLOW,ApexClass,ApexTrigger,VisualForcePage,NamedCredential     
+	   
+	      <status>Active</status>   Can you please add a column for active for xml fles where it is present
+		   .\force-app\main\default\   Please take this out as only xnl file name is needed
+		  next and text between next two \ is the name of the components, can you put the name of the compoents in a separte column

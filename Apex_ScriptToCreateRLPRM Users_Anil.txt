@@ -1,0 +1,54 @@
+ist<Id> conIdList = new List<Id> {
+'003Kj00002YZBcK', '003Kj00002YZBoy', '003Kj00002YZBTu', '003Kj00002YZBWZ', '003Kj00002YZBYF', '003Kj00002YZBYU', '003Kj00002YZBe4', '003Kj00002YZBe9', '003Kj00002YZBfq', '003Kj00002YZBgR',
+'003Kj00002YZBhV', '003Kj00002YZBiu', '003Kj00002YZBnv', '003Kj00002YZBq2', '003Kj00002YZBVt', '003Kj00002YZBXC', '003Kj00002YZBdd', '003Kj00002YZBgG', '003Kj00002YZBZM', '003Kj00002YZBnQ',
+'003Kj00002YZBfX', '003Kj00002YZBdW', '003Kj00002YZBRr', '003Kj00002YZBdt', '003Kj00002YZBnI', '003Kj00002YZBSF', '003Kj00002YZBcU', '003Kj00002YZBUo', '003Kj00002YZBWp', '003Kj00002YZBYs',
+'003Kj00002YZBab', '003Kj00002YZBeX', '003Kj00002YZBfg', '003Kj00002YZBgF', '003Kj00002YZBht', '003Kj00002YZBjx', '003Kj00002YZBk9', '003Kj00002YZBkH', '003Kj00002YZBlB', '003Kj00002YZBmJ',
+'003Kj00002YZBnu', '003Kj00002YZBoY', '003Kj00002YZBp8', '003Kj00002YZBSZ', '003Kj00002YZBRa', '003Kj00002YZBU2', '003Kj00002YZBVK', '003Kj00002YZBWA', '003Kj00002YZBWw', '003Kj00002YZBZK',
+'003Kj00002YZBbS', '003Kj00002YZBga', '003Kj00002YZBoM', '003Kj00002YZBoV', '003Kj00002YZBpn', '003Kj00002YZBqB', '003Kj00002YZBVN', '003Kj00002YZBdF', '003Kj00002YZBmK', '003Kj00002YZBfS'
+ };
+  
+  
+   List<Contact> conList = [
+     select Id, AccountId, Account.FRL_Enterprise_Account_Type__c,
+            Account.IsPartner, Description, Email, FirstName,
+            LastName, MailingCity, MailingCountry, MailingPostalCode,
+            MailingState, MailingStreet, MobilePhone, Name, Phone, Title
+     from Contact
+     where Id IN :conIdList
+     and AccountId != null
+     and Account.IsPartner = true];
+
+
+   if (conList.isEmpty()) {
+     System.debug('***NO Records to process');
+   }
+   List<String> userNameList = new List<String>();
+   for (Contact con : conList) {
+     userNameList.add(con.Email + RL_Constants.RL_SUFFIX);
+   }
+   System.debug('*****userNameList: '+userNameList);
+   List<User> allUsers = [select Id, FirstName, LastName, UserName, ContactId
+           from User
+           where UserName IN: userNameList
+           and IsActive = true];
+   Map<String, User> comUserMap = new Map<String, User>();
+   for (User u : allUsers) {
+     comUserMap.put(u.ContactId, u);
+   }
+   System.debug('*****comUserMap: '+comUserMap);
+   List<Contact> usersToBeCreated = new List<Contact>();
+   for (Contact con : conList) {
+     if (!comUserMap.containsKey(con.Id)) {
+       usersToBeCreated.add(con);
+     }
+   }
+   System.debug('*****usersToBeCreated: '+ usersToBeCreated);
+   Savepoint sp = Database.setSavepoint();
+   try {
+     RL_UserManagementUtil.createUserFromContact(usersToBeCreated);
+   } catch (Exception e) {
+     Database.rollback(sp);
+     System.debug('**Exception is: '+e.getMessage());
+   }
+
+

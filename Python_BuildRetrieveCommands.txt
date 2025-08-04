@@ -1,0 +1,45 @@
+import subprocess
+import json
+
+# === CONFIG ===
+org_alias = "myOrg"  # 🔁 Replace with your connected SFDX alias
+
+# === Step 1: Describe metadata types ===
+print("🔍 Fetching metadata types...")
+cmd = ["sfdx", "force:mdapi:describemetadata", "-u", org_alias, "--json"]
+result = subprocess.run(cmd, capture_output=True, text=True)
+
+if result.returncode != 0:
+    print("❌ Failed to fetch metadata types:", result.stderr)
+    exit(1)
+
+metadata = json.loads(result.stdout)
+types = metadata["result"]["metadataObjects"]
+
+# === Step 2: Filter and build retrieve command ===
+type_names = [t["xmlName"] for t in types if "xmlName" in t]
+type_names.sort()
+
+# Build batched command (SFDX limit: ~5000 chars in command line)
+batched_commands = []
+batch = []
+total_len = 0
+max_len = 5000
+
+for name in type_names:
+    item = name.strip()
+    if total_len + len(item) + 1 > max_len:
+        batched_commands.append("sfdx force:source:retrieve -m " + ",".join(batch))
+        batch = [item]
+        total_len = len(item)
+    else:
+        batch.append(item)
+        total_len += len(item) + 1
+
+if batch:
+    batched_commands.append("sfdx force:source:retrieve -m " + ",".join(batch))
+
+# === Output Commands ===
+print(f"\n✅ {len(batched_commands)} retrieve commands generated:\n")
+for i, cmd in enumerate(batched_commands, 1):
+    print(f"# Command {i}:\n{cmd}\n")

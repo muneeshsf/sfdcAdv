@@ -1,0 +1,325 @@
+sfdx force:org:display --target-org metaprod --verbose
+
+ Access Token     00DA0000000K9kF!AQYAQI.9DhpsVcFkj4upzOBY23HzaQCI0ESnoroEj5_gsJ03iJB.lCEEQRLxS_Dm3ZVpDvrheHK0Y24CUNbSL4SR.069w1oU
+ Alias            metaprd
+ Api Version      64.0
+ Client Id        PlatformCLI
+ Connected Status Connected
+ Id               00DA0000000K9kFMAS
+ Instance Url     https://fb.my.salesforce.com
+ Sfdx Auth Url    force://PlatformCLI::5Aep861Yij7AXt5Ce7kZ20dcSgXyVEqDtmQMsPzOGV.DPwOLxR7S9__EVtwN2OD14Or1grDrJYYtTR6D6_k2x3h@fb.my.salesforce.com
+ Username         bhallamuneesh@meta.com
+ 
+ 
+
+sfdx force:data:soql:query -q "select count(Email_of_Meta_Contact__c) from Lead" -r csv > c:\muneesh\lead_Email_of_Meta_Contact__c.csv
+
+=CONCAT($B$1,$F$1,A4,")",$G$1)
+Error (1): No default environment found. Use -o or --target-org to specify an environment.
+
+sfdx force:auth:web:login --setalias metaprod --instanceurl https://login.salesforce.com --set-default
+
+sfdx force:auth:web:login --alias metaprod --instance-url https://login.salesforce.com --set-default      <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,
+
+sfdx force:source:retrieve -m AuraDefinitionBundle,LightningComponentBundle,FLOW,ApexClass,ApexTrigger,ApexPage,NamedCredential
+
+
+Select MetadataComponentId,MetadataComponentName,RefMetadataComponentName,RefMetadataComponentId,MetadataComponentType 
+from MetadataComponentDependency 
+
+
+C:\Users\bhallamuneesh>sfdx force:data:soql:query -q "select count(Email_of_Meta_Contact__c) from Lead" -r csv > c:\muneesh\lead_Email_of_Meta_Contact__c.csv
+Error (1): No default environment found. Use -o or --target-org to specify an environment.
+
+
+C:\Users\bhallamuneesh>sfdx force:auth:web:login --setalias metaprod --instanceurl https://login.salesforce.com --setdefaultusername
+Warning: The "--instanceurl" flag has been deprecated. Use "--instance-url | -r" instead.
+Warning: The "--setdefaultusername" flag has been deprecated. Use "--set-default | -s" instead.
+Warning: The "--setalias" flag has been deprecated. Use "--alias | -a" instead.
+Successfully authorized bhallamuneesh@meta.com with org ID 00DA0000000K9kFMAS
+
+
+select count(Vendor_Name__c) Vendor_Name__c,count(MasterRecordId) MasterRecordId from case 
+
+sfdx force:data:soql:query -q "select count(Rack__c),count(Row__c),count(Serial__c),count(Sub_Type__c),count(Suite__c),count(Total_Memory__c),
+count(SeRF_Asset_ID__c),count(LeanData__Status_Info__c),count(Building__c),count(Vendor_Name__c) Vendor_Name__c,count(MasterRecordId) MasterRecordId from case" -r csv > c:\muneesh\case.csv
+
+sfdx force:data:soql:query -q "select count(local_address_line_2__c) local_address_line_2__c,count(local_city__c) local_city__c, count(local_country__c) local_country__c, count(local_state__c) local_state__c from address" -r csv > c:\muneesh\address.csv
+-- Case 1
+
+below is bad
+
+sfdx force:data:soql:query -q "select count(Advertiser_Name__c) Advertiser_Name__c from case" -r csv > c:\muneesh\case.csv
+
+===============below done
+sfdx force:data:soql:query -q "select count(Last_Comment_Time__c) Last_Comment_Time__c,count(Order__c) Order__c,count(Facebook_User_ID__c) Facebook_User_ID__c,count(User_ID_from_Contact__c) User_ID_from_Contact__c,count(Violation_Type__c) Violation_Type__c,count(Date__c) Date__c,count(Enforcement_Type__c) Enforcement_Type__c,count(Inquiry_Quarter__c) Inquiry_Quarter__c,count(Commission_Inquiry_Type__c) Commission_Inquiry_Type__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Language__c) Language__c,count(Page_Ops_Request_Type__c) Page_Ops_Request_Type__c,count(Channel__c) Channel__c,count(Platform_Ops_Request_Type__c) Platform_Ops_Request_Type__c,count(API_Key__c) API_Key__c,count(Developer_UID__c) Developer_UID__c,count(Domain_URL__c) Domain_URL__c,count(App_ID__c) App_ID__c,count(App_URL__c) App_URL__c,count(Task_URL__c) Task_URL__c,count(Customer_Issue_Reason__c) Customer_Issue_Reason__c,count(Account_Ultimate_Parent__c) Account_Ultimate_Parent__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Resolved_Time__c) Resolved_Time__c,count(IO_Ad_Account__c) IO_Ad_Account__c,count(Status_of_Commission_Request__c) Status_of_Commission_Request__c,count(Action__c) Action__c,count(Partnership_Region__c) Partnership_Region__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(ClosedBy__c) ClosedBy__c,count(Data_Center__c) Data_Center__c,count(Diagnosed_By__c) Diagnosed_By__c,count(Owner_Facebook_Id__c) Owner_Facebook_Id__c,count(FB_Link__c) FB_Link__c,count(FB_Object_Type__c) FB_Object_Type__c,count(FB__c) FB__c,count(FB_Object_Name__c) FB_Object_Name__c,count(Authentic_Page_ID__c) Authentic_Page_ID__c,count(Broker__c) Broker__c,count(Current_URL__c) Current_URL__c,count(Biggest_Challenge_w_FB_Ads__c) Biggest_Challenge_w_FB_Ads__c,count(Requested_URL__c) Requested_URL__c,count(page_ID__c) page_ID__c,count(Description_of_violation__c) Description_of_violation__c,count(Link_to_violating_post_photo_form__c) Link_to_violating_post_photo_form__c,count(Asset_L10__c) Asset_L10__c,count(Current_Page_name__c) Current_Page_name__c,count(A_B_Email_Test__c) A_B_Email_Test__c,count(ServiceNow_ID__c) ServiceNow_ID__c,count(Host_Name__c) Host_Name__c,count(Asset_DC__c) Asset_DC__c,count(Reported_by_this_client__c) Reported_by_this_client__c,count(Desired_Page_name__c) Desired_Page_name__c,count(FQDN__c) FQDN__c,count(Host_Name_Text__c) Host_Name_Text__c,count(Lead_to_Case_Country__c) Lead_to_Case_Country__c,count(Reason__c) Reason__c,count(Current_name_of_Blacklist__c) Current_name_of_Blacklist__c,count(Terms_to_Blacklist__c) Terms_to_Blacklist__c,count(related_to_this_client__c) related_to_this_client__c,count(Disk_Space__c) Disk_Space__c,count(IP_Address__c) IP_Address__c,count(MAC_Addresses__c) MAC_Addresses__c,count(Make_Model__c) Make_Model__c,count(OOB_Mac__c) OOB_Mac__c,count(OS__c) OS__c,count(Position__c) Position__c,count(Cyborg_Verification_Count__c) Cyborg_Verification_Count__c,count(Cluster__c) Cluster__c,count(Cluster_Rack__c) Cluster_Rack__c,count(Asset_Id__c) Asset_Id__c,count(Rack__c),count(Row__c),count(Serial__c),count(Sub_Type__c),count(Suite__c),count(Total_Memory__c),count(SeRF_Asset_ID__c),count(LeanData__Status_Info__c),count(Building__c),count(Vendor_Name__c) Vendor_Name__c,count(MasterRecordId) MasterRecordId   from case" -r csv > c:\muneesh\case_1.csv
+sfdx force:data:soql:query -q "select count(Dev_Support_Request_Type__c) Dev_Support_Request_Type__c,count(Case_Sub_Type__c) Case_Sub_Type__c,count(DEtails__c) DEtails__c,count(RMA__c) RMA__c,count(Removed_Part_Serial__c) Removed_Part_Serial__c,count(Region_Id__c) Region_Id__c,count(Asset_Repair_Guide__c) Asset_Repair_Guide__c,count(Case_Assigned_Date__c) Case_Assigned_Date__c,count(Case_Age_Resolved_Time__c) Case_Age_Resolved_Time__c,count(PMD_Tier__c) PMD_Tier__c,count(Rev_28d__c) Rev_28d__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Partnership_Vertical__c) Partnership_Vertical__c,count(Country_on_webform__c) Country_on_webform__c,count(Violation_Type1__c) Violation_Type1__c,count(Rev_7d__c) Rev_7d__c,count(Churn_Prevention_Type__c) Churn_Prevention_Type__c,count(Next_Steps__c) Next_Steps__c,count(Advertiser__c) Advertiser__c,count(Nexus_Integration_External_ID__c) Nexus_Integration_External_ID__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Web_Ad_Account_ID_Number__c) Web_Ad_Account_ID_Number__c,count(Case_Age_Contact_Time__c) Case_Age_Contact_Time__c,count(Page_Ops_Customer_Issue__c) Page_Ops_Customer_Issue__c,count(CBM__c) CBM__c,count(Page_Ops_Customer_Issue_Rsn__c) Page_Ops_Customer_Issue_Rsn__c,count(What_types__c) What_types__c,count(TPS_CRT_Ticket_ID__c) TPS_CRT_Ticket_ID__c,count(Pop_Session_Id__c) Pop_Session_Id__c,count(AD_Account_Manager__c) AD_Account_Manager__c,count(AD_Client_Partner__c) AD_Client_Partner__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(AD_Estimated_Revenue__c) AD_Estimated_Revenue__c,count(AD_Halo_Account__c) AD_Halo_Account__c,count(Ad_Media_Solutions__c) Ad_Media_Solutions__c,count(AD_Requested_Date__c) AD_Requested_Date__c,count(API_Customer_Issue_Reason__c) API_Customer_Issue_Reason__c,count(Requested_Call_Back_Time__c) Requested_Call_Back_Time__c  from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(AD_Clients_Lookup__c) AD_Clients_Lookup__c,count(CC_Date_Transfer_FT__c) CC_Date_Transfer_FT__c,count(CC_Transfer_for_FT_Agent__c) CC_Transfer_for_FT_Agent__c,count(CC_Date_Transfer_S2S__c) CC_Date_Transfer_S2S__c,count(CC_Transfer_for_S2S_Agent__c) CC_Transfer_for_S2S_Agent__c,count(CC_Date_Closed_Won_FT__c) CC_Date_Closed_Won_FT__c,count(CC_Closed_Won_FT_Agent__c) CC_Closed_Won_FT_Agent__c, count(CC_Date_Closed_Won_S2S__c) CC_Date_Closed_Won_S2S__c,count(CC_Closed_Won_S2S_Agent__c) CC_Closed_Won_S2S_Agent__c   from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Call_Center_Flag__c) Call_Center_Flag__c,count(Churn_Account_ID__c) Churn_Account_ID__c,count(CC_Transfer_for_FT_Role__c) CC_Transfer_for_FT_Role__c,count(CC_Transfer_for_S2S_Role__c) CC_Transfer_for_S2S_Role__c,count(CC_Closed_Won_FT_Role__c) CC_Closed_Won_FT_Role__c,count(CC_Closed_Won_S2S_Role__c) CC_Closed_Won_S2S_Role__c  from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(CC_Program__c) CC_Program__c,count(Facebook_Rep_Email__c) Facebook_Rep_Email__c,count(FB_UID__c) FB_UID__c,count(Rating__c) Rating__c,count(Website__c) Website__c,count(Referral_Source__c) Referral_Source__c,count(FB_Coupon_Code__c) FB_Coupon_Code__c  from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(country__c) country__c,count(AD_Cluster_Title__c) AD_Cluster_Title__c,count(Name__c) Name__c,count(Escalation_Reason__c) Escalation_Reason__c,count(Asset_Server_Type__c) Asset_Server_Type__c,count(Ad_Account_IDs__c) Ad_Account_IDs__c,count(SMB_Growth_Lead_Source__c) SMB_Growth_Lead_Source__c  from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Email_address__c) Email_address__c,count(Form_ID__c) Form_ID__c,count(AD_Account_Num__c) AD_Account_Num__c  from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Case_Age_Assignment_Time__c) Case_Age_Assignment_Time__c,count(Case_Age_Escalation_Contact_Time__c) Case_Age_Escalation_Contact_Time__c,count(Last_Number_in_Ad_Account__c) Last_Number_in_Ad_Account__c   from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(QuickText_CR_ID_1__c) QuickText_CR_ID_1__c,count(Ad_Campaign__c) Ad_Campaign__c,count(Name_of_User__c) Name_of_User__c,count(Email_of_User__c) Email_of_User__c,count(Closed_Owner_Role__c) Closed_Owner_Role__c,count(Escalation_Agent_Name__c) Escalation_Agent_Name__c   from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Invoice_Number__c) Invoice_Number__c,count(Payment_ID__c) Payment_ID__c,count(PO_Number__c) PO_Number__c,count(Priority_Flag__c) Priority_Flag__c,count(Age__c) Age__c,count(CPU__c) CPU__c   from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Parent_Asset_Tag__c) Parent_Asset_Tag__c,count(Reopened_Date__c) Reopened_Date__c,count(SLA_Open_Count__c) SLA_Open_Count__c,count(SLA_Low_Priority_Count__c) SLA_Low_Priority_Count__c from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Case_Age__c) Case_Age__c,count(Host_Location__c) Host_Location__c,count(Created_Date__c) Created_Date__c,count(Recent_Cases__c) Recent_Cases__c,count(SLA_Critical_Priority_Count__c) SLA_Critical_Priority_Count__c,count(SLA__c) SLA__c   from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Is_Pending__c) Is_Pending__c,count(Number_Pending__c) Number_Pending__c,count(Status_R_O__c) Status_R_O__c,count(Is_Claimed__c) Is_Claimed__c,count(Age_Bucket__c) Age_Bucket__c,count(Number_of_Repair_Actions__c) Number_of_Repair_Actions__c,count(SLA_High_Priority_Count__c) SLA_High_Priority_Count__c,count(SLA_Moderate_Priority_Count__c) SLA_Moderate_Priority_Count__c   from case" -r csv > c:\muneesh\case.csv
+
+======below left 
+
+ IGNORE sfdx force:data:soql:query -q "select count(Case_Post_Escalation_Contact_Date__c) Case_Post_Escalation_Contact_Date__c  from case" -r csv > c:\muneesh\case.csv
+sfdx force:data:soql:query -q "select count(Start_Success__c) Start_Success__c,count(Hi_Priority_Account__c) Hi_Priority_Account__c  from case" -r csv > c:\muneesh\case.csv
+count(Case_Escalation_Date__c) Case_Escalation_Date__c,
+==============
+sfdx force:data:soql:query -q "select count(SLA_Text__c) SLA_Text__c,count(SLA_Time__c) SLA_Time__c,count(SLA_Elapsed__c) SLA_Elapsed__c
+  from case" -r csv > c:\muneesh\case.csv
+
+
+sfdx force:data:soql:query -q "select count(Thread_ID__c) Thread_ID__c   from case" -r csv > c:\muneesh\case_2_1.csv  Ignore
+sfdx force:data:soql:query -q "select count(Page_Migration__c) Page_Migration__c    from case" -r csv > c:\muneesh\case_2_2.csv  done
+
+
+
+sfdx force:data:soql:query -q "select count(Account_Vertical1__c) Account_Vertical1__c  from case" -r csv > c:\muneesh\case_2_3.csv
+sfdx force:data:soql:query -q "select count(Is_Account_InActive__c) Is_Account_InActive__c    from case" -r csv > c:\muneesh\case_2_4.csv
+sfdx force:data:soql:query -q "select count(Cyborg_Reimage__c) Cyborg_Reimage__c    from case" -r csv > c:\muneesh\case_2_5.csv
+sfdx force:data:soql:query -q "select count(Page_Migration_Request_URL__c) Page_Migration_Request_URL__c    from case" -r csv > c:\muneesh\case_2_6.csv
+sfdx force:data:soql:query -q "select count(SLA_Time_Remaining__c) SLA_Time_Remaining__c    from case" -r csv > c:\muneesh\case_2_7.csv
+sfdx force:data:soql:query -q "select count(Reopen_Count__c) Reopen_Count__c    from case" -r csv > c:\muneesh\case_2_8.csv
+sfdx force:data:soql:query -q "select count(DOA__c) DOA__c    from case" -r csv > c:\muneesh\case_2_9.csv
+
+
+count(Cases_created_by_me__c) Cases_created_by_me__c,
+count(Case_Study_Potential__c) Case_Study_Potential__c,
+count(Contains_Product_Feedback__c) Contains_Product_Feedback__c,
+count(Data_Center_New__c) Data_Center_New__c,
+count(Recent_Case_Count__c) Recent_Case_Count__c,
+count(Hour_Case_Opened__c) Hour_Case_Opened__c,
+count(Link_to_Ads_Manager_Internal__c) Link_to_Ads_Manager_Internal__c,
+count(Link_to_Ads_Manager__c) Link_to_Ads_Manager__c,
+count(Task_Link__c) Task_Link__c,
+count(TCFlag__c) TCFlag__c,
+count(SLA_Elapsed_Days__c) SLA_Elapsed_Days__c,
+count(Cyborg_History__c) Cyborg_History__c,
+count(Upsell_Opportunity__c) Upsell_Opportunity__c,
+count(SMB_Priority_Account__c) SMB_Priority_Account__c,
+count(Profile_Picture__c) Profile_Picture__c,
+count(Age_Bucket_SLA__c) Age_Bucket_SLA__c,
+count(Ad_Support_SLA__c) Ad_Support_SLA__c,
+count(Is_Updated__c) Is_Updated__c,
+count(Agency_Self_Indicator__c) Agency_Self_Indicator__c,
+count(Case_Age_Response_Time__c) Case_Age_Response_Time__c,
+count(TradeOps_Domain__c) TradeOps_Domain__c,
+count(Asset_Tag__c) Asset_Tag__c,
+count(New_Client_Email_Received__c) New_Client_Email_Received__c,
+count(New_comment_by_non_owner__c) New_comment_by_non_owner__c,
+count(Customer_Credit_Offered__c) Customer_Credit_Offered__c,
+count(Ad_Account_ID_Formula__c) Ad_Account_ID_Formula__c,
+count(Ad_Support_SLA_Formula__c) Ad_Support_SLA_Formula__c,
+count(PMD_Account__c) PMD_Account__c,
+count(FBX_Case_Categories__c) FBX_Case_Categories__c,
+count(Rehire_BooleanValue__c) Rehire_BooleanValue__c,
+count(HiringMgr_EmpNo__c) HiringMgr_EmpNo__c,
+count(Facebook_Company_Code__c) Facebook_Company_Code__c,
+count(CSAT_Score__c) CSAT_Score__c,
+count(Link_to_FB_CRM__c) Link_to_FB_CRM__c,
+count(Page_Id_URL__c) Page_Id_URL__c,
+count(Last_Communication_is_from_client__c) Last_Communication_is_from_client__c,
+count(Total_hours_worked_on_the_Case__c) Total_hours_worked_on_the_Case__c,
+count(Number_of_Outbound_Emails__c) Number_of_Outbound_Emails__c,
+count(Escalated_to_Engineering__c) Escalated_to_Engineering__c,
+count(FBX_SLA__c) FBX_SLA__c,
+count(Status_Button__c) Status_Button__c,
+count(Unordered_Receipts__c) Unordered_Receipts__c,
+count(CaseContactEmailOptOutOverwritten__c) CaseContactEmailOptOutOverwritten__c,
+count(RestoreContactEmailOptOut__c) RestoreContactEmailOptOut__c,
+count(Time_Zone__c) Time_Zone__c,
+count(CaseResponse_Summary__c) CaseResponse_Summary__c,
+count(FCC__c) FCC__c,
+count(INV_Is_Flash_Only__c) INV_Is_Flash_Only__c,
+count(Link_to_Tableau__c) Link_to_Tableau__c,
+count(Outsource_QA_approved__c) Outsource_QA_approved__c,
+count(Outsource_Rep_Completed__c) Outsource_Rep_Completed__c,
+count(Live_Chat_Transcripts__c) Live_Chat_Transcripts__c,
+count(SMB_Event__c) SMB_Event__c,
+count(INV_Is_Offsite_Erad__c) INV_Is_Offsite_Erad__c,
+count(Re_opened_lead__c) Re_opened_lead__c,
+count(INV_Is_Partial_Decom__c) INV_Is_Partial_Decom__c,
+count(External_Vendor_Access_Approved__c) External_Vendor_Access_Approved__c,
+count(Closed_Month__c) Closed_Month__c,
+count(View_ad_account_in_FB_CRM__c) View_ad_account_in_FB_CRM__c,
+count(View_Contact_in_FB_CRM__c) View_Contact_in_FB_CRM__c,
+count(FDA__c) FDA__c,
+count(Parent_Case__c) Parent_Case__c,
+count(Inherit_Parent_Case_Labels__c) Inherit_Parent_Case_Labels__c,
+count(INV_Is_Storage_Only__c) INV_Is_Storage_Only__c,
+count(ID_18_Digit__c) ID_18_Digit__c,
+count(One_To_One_Session__c) One_To_One_Session__c,
+count(Proactive__c) Proactive__c,
+count(Was_Case_Ready_to_Close_in_past__c) Was_Case_Ready_to_Close_in_past__c,
+count(Tradeops_First_Response__c) Tradeops_First_Response__c,
+count(Priority_Number__c) Priority_Number__c,
+count(hours_since_opened__c) hours_since_opened__c,
+count(SMB_Priority__c) SMB_Priority__c,
+count(Auto_Response_Sent__c) Auto_Response_Sent__c,
+count(Managed_Account__c) Managed_Account__c,
+count(Item_Certification_Required__c) Item_Certification_Required__c,
+count(PO_Link__c) PO_Link__c,
+count(Case_URL__c) Case_URL__c,
+count(LR_Account_Region__c) LR_Account_Region__c,
+count(All_Emails__c) All_Emails__c,
+count(isExpedited__c) isExpedited__c,
+count(Security_Needed__c) Security_Needed__c,
+count(Thread_ID_E2C_version__c) Thread_ID_E2C_version__c,
+count(System_Date__c) System_Date__c,
+count(IsVRBypassed__c) IsVRBypassed__c,
+count(Number_of_Inbound_Emails__c) Number_of_Inbound_Emails__c,
+count(Sync_With_Facebook__c) Sync_With_Facebook__c,
+count(Total_Shipment_Value__c) Total_Shipment_Value__c,
+count(Total_Shipment_Weight__c) Total_Shipment_Weight__c,
+count(Open__c) Open__c,
+count(Currency_Type__c) Currency_Type__c,
+count(SMB_Priority_Value__c) SMB_Priority_Value__c,
+count(Last_Touch__c) Last_Touch__c,
+count(IsTradeOpsDuplicateCase__c) IsTradeOpsDuplicateCase__c,
+count(My_Case__c) My_Case__c,
+count(Username__c) Username__c,
+count(Created_by_Me_Email_or_Web__c) Created_by_Me_Email_or_Web__c,
+count(Is_Contact_Email_Null__c) Is_Contact_Email_Null__c,
+count(Base_Origin__c) Base_Origin__c,
+count(Escalate_to_SE__c) Escalate_to_SE__c,
+count(ValidationBypassDateTime__c) ValidationBypassDateTime__c,
+count(Close_Rate__c) Close_Rate__c,
+count(Created_by_Email_or_Web__c) Created_by_Email_or_Web__c,
+count(Unit_of_Measures__c) Unit_of_Measures__c,
+count(Owner_Role_Region__c) Owner_Role_Region__c,
+count(Owner_Role__c) Owner_Role__c,
+count(Manager_s_Name__c) Manager_s_Name__c,
+count(Assign_or_Redirect__c) Assign_or_Redirect__c,
+count(Contingent_worker_type__c) Contingent_worker_type__c,
+count(Agent_Location__c) Agent_Location__c,
+count(Agent_Hours__c) Agent_Hours__c,
+count(FBX_Priority__c) FBX_Priority__c,
+count(Email_Language__c) Email_Language__c,
+count(LR_Severity__c) LR_Severity__c,
+count(Web_First_Name__c) Web_First_Name__c,
+count(Case_Contact_Date__c) Case_Contact_Date__c,
+count(Case_Age_Customer_Time__c) Case_Age_Customer_Time__c,
+count(case_contact_Date_date__c) case_contact_Date_date__c,
+count(Case_First_Contact_TAT__c) Case_First_Contact_TAT__c,
+count(Case_Response_Business_Days__c) Case_Response_Business_Days__c,
+count(Account_Country__c) Account_Country__c,
+count(SFDCAccountID__c) SFDCAccountID__c,
+count(Account_Owner__c) Account_Owner__c,
+count(Contact_ID_from_formula__c) Contact_ID_from_formula__c,
+count(CRM_Org_ID__c) CRM_Org_ID__c,
+count(Case_Type__c) Case_Type__c,
+count(TradeOps_Last_Inbound_Email_Date_Time__c) TradeOps_Last_Inbound_Email_Date_Time__c,
+count(Case_Labels__c) Case_Labels__c,
+count(Inquiry_Type__c) Inquiry_Type__c,
+count(Region_Labels__c) Region_Labels__c,
+count(Country_Labels__c) Country_Labels__c,
+count(Previous_Status__c) Previous_Status__c,
+count(QT_Display_Name__c) QT_Display_Name__c,
+count(TradeOps_Account__c) TradeOps_Account__c,
+count(TradeOps_Case_Last_Touch_Date_Time__c) TradeOps_Case_Last_Touch_Date_Time__c,
+count(Tradeops_First_Outbound_Email_Date_Time__c) Tradeops_First_Outbound_Email_Date_Time__c,
+count(Last_Status_Update_Time__c) Last_Status_Update_Time__c,
+count(Collector_ID__c) Collector_ID__c,
+count(Customer_Tier__c) Customer_Tier__c,
+count(Case_Resolved_Date__c) Case_Resolved_Date__c,
+count(Time_to_Resolve_Days__c) Time_to_Resolve_Days__c,
+count(Internal_Requester__c) Internal_Requester__c,
+count(Category__c) Category__c,
+count(Dangerous_Goods__c) Dangerous_Goods__c,
+count(Pick_Up_Drop_Off__c) Pick_Up_Drop_Off__c,
+count(Project_Code__c) Project_Code__c,
+count(Ready_By_Date__c) Ready_By_Date__c,
+count(Recipient_Email__c) Recipient_Email__c,
+count(Recipient_Name__c) Recipient_Name__c,
+count(Recipient_Phone__c) Recipient_Phone__c,
+count(Request_Type__c) Request_Type__c,
+count(Requester_Cost_Center__c) Requester_Cost_Center__c,
+count(Sender_Email__c) Sender_Email__c,
+count(Sender_Name__c) Sender_Name__c,
+count(Sender_Phone__c) Sender_Phone__c,
+count(Time_Sensitive_or_Not_Time_Sensitive__c) Time_Sensitive_or_Not_Time_Sensitive__c,
+count(Region__c) Region__c,
+count(EOR_Account__c) EOR_Account__c,
+count(Sender_Address_Lookup__c) Sender_Address_Lookup__c,
+count(IOR_Account__c) IOR_Account__c,
+count(Recipient_Address_Lookup__c) Recipient_Address_Lookup__c,
+count(Forwarder_Courier__c) Forwarder_Courier__c,
+count(Service_Level__c) Service_Level__c,
+count(GTM_Transaction__c) GTM_Transaction__c,
+count(Freight_Charges__c) Freight_Charges__c,
+count(Incoterms__c) Incoterms__c,
+count(Status_Value__c) Status_Value__c,
+count(Cost_Center__c) Cost_Center__c,
+count(CI_Status__c) CI_Status__c,
+count(GTM_Transaction_ID__c) GTM_Transaction_ID__c,
+count(Partnership_Tier__c) Partnership_Tier__c,
+count(Shipping_Tracking__c) Shipping_Tracking__c,
+count(Account_Team__c) Account_Team__c,
+count(Email_message__c) Email_message__c,
+count(Hours_Outstanding__c) Hours_Outstanding__c,
+count(Oldest_Outstanding_Email_Date_Time_Calc__c) Oldest_Outstanding_Email_Date_Time_Calc__c,
+count(Oldest_Outstanding_Email_Date_Time__c) Oldest_Outstanding_Email_Date_Time__c,
+count(Length__c) Length__c,
+count(Width__c) Width__c,
+count(Height__c) Height__c,
+count(Gross_Item_Weight__c) Gross_Item_Weight__c,
+count(Group__c) Group__c,
+count(Case_Age_Overall_Time__c) Case_Age_Overall_Time__c,
+count(Time_to_Close_Days__c) Time_to_Close_Days__c,
+count(TradeOps_Last_Outbound_Email_Date_Time__c) TradeOps_Last_Outbound_Email_Date_Time__c,
+count(Need_By_Date__c) Need_By_Date__c,
+count(Auto_Resolved_Datetime__c) Auto_Resolved_Datetime__c,
+count(Worker__c) Worker__c,
+count(Account_Tier__c) Account_Tier__c,
+count(Recipient_Company__c) Recipient_Company__c,
+count(Pickup_Options__c) Pickup_Options__c,
+count(Queue_Name__c) Queue_Name__c,
+count(Pickup_Notes__c) Pickup_Notes__c,
+count(Shipment_Type__c) Shipment_Type__c,
+count(Task__c) Task__c,
+count(Carton_Count__c) Carton_Count__c,
+count(Inquiry_Category__c) Inquiry_Category__c,
+count(Country_Code__c) Country_Code__c,
+count(Customer_Email_from_Form__c) Customer_Email_from_Form__c,
+count(Sender_Company__c) Sender_Company__c,
+count(Second_Leg_Shipping_Tracking__c) Second_Leg_Shipping_Tracking__c,
+count(Phone_from_IVR__c) Phone_from_IVR__c,
+count(Phone_Formula__c) Phone_Formula__c,
+count(ARVR_Pickup_POC__c) ARVR_Pickup_POC__c,
+count(Case_Latest_Contact_Date__c) Case_Latest_Contact_Date__c,
+count(Vendor_CI_Data_Missing__c) Vendor_CI_Data_Missing__c,
+count(Vendor_Name__c) Vendor_Name__c,
+count(Expedited_Date__c) Expedited_Date__c,
+count(Expedite_Reason__c) Expedite_Reason__c,
+count(Pending_Response_SLA__c) Pending_Response_SLA__c,
+count(SMB_Priority_Value_Pending_Response__c) SMB_Priority_Value_Pending_Response__c,
+
+
+
+=============0000=================   
+Parent_Asset_Tag__c
+FB_Coupon_Code__c
+MAC_Addresses__c
+
+OOB_Mac__c
+count(Sub_Type__c)
+count(LeanData__Status_Info__c)
+MasterRecordId  Verifed
+
+
+
+Now to find out total count and where all these fields are being used
+

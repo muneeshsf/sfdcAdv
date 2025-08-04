@@ -1,0 +1,102 @@
+https://help.salesforce.com/s/articleView?id=000389618&type=1
+https://help.salesforce.com/s/articleView?id=release-notes.rn_security_em_track_api_usage_all_versions.htm&release=244&type=5
+https://help.salesforce.com/s/articleView?id=release-notes.rn_security_em_apitotalusage_added_fields.htm&release=238&type=5
+https://help.salesforce.com/s/articleView?id=release-notes.rn_security_em_api_total_usage.htm&release=232&type=5
+
+ SELECT logintype, logintime,userid,application,status,SourceIp from LoginHistory 
+where  userid='005A00000028EhJ'  limit 100
+
+SELECT logintype, logintime,userid,application,status,SourceIp,ClientVersion,LoginGeo.Country,ApiType,ApiVersion,LoginUrl,NetworkId,LoginSubType from LoginHistory 
+where  userid='005A00000028EhJ'  limit 100
+
+SELECT logintype, logintime,userid,application,status,SourceIp,ClientVersion,LoginGeo.Country,ApiType,ApiVersion,LoginUrl,NetworkId,LoginSubType from LoginHistory 
+where  userid='005A0000000p4zmIAA'  limit 100
+
+SELECT logintype, logintime,userid,application,status,SourceIp,ClientVersion,LoginGeo.Country,ApiType,ApiVersion,LoginUrl,NetworkId,LoginSubType from LoginHistory 
+where  logintype !='UI'  order by logintime desc limit 1000
+
+
+
+CLIENT_ID  is populate don API logs only when call is made theu OAuth base Connected Applications
+If integratin uses Uis/pwd, sessin id or inbound calls from systems not using oAuth then no CLIENT ID
+
+URI will be emprty for METHOD NAME=;OGIN 
+
+URI is populate dfor RESTor BULK API
+
+if unmr/password insted of OAuth/Connect App then CLIENT_ID & URI may be null.
+
+Event Tpe API captures all API calls made to your org. (SOAP, REST, BUlk etc)
+use it to detect deprecated versions, fomd slow API consumers
+
+By utilizing the API Total Usage event type, you can effectively track the API versions being used by your integrations and 
+identify requests originating from older or unsupported versions. This helps you manage your 
+API version strategy and ensure that your integrations remain up to date. 
+
+Track API Version Use with the API Total Usage Event
+Gain visibility into API version use with the "API Total Usage" event type in the EventLogFile object. This event type helps you 
+streamline your API version management strategy and plans. You can also use it to monitor your general API consumption. 
+This event records calls to SOAP, Bulk v1, and REST API requests up to version 30.0. 
+
+Track API Usage for API Versions 31–49
+Use the API Total Usage event type to monitor details of requests made from versions 31–49 of the Platform SOAP API, 
+Platform REST API, and Bulk API. Previously, this event type monitored API usage through version 30. Using the API Total 
+Usage event type can help you identify requests from old and unsupported API versions.
+
+
+Data is retained for 24 hours.
+
+
+NEXT --->  Update code to scan files to give summary count of CONNECTED_APP_NAME,USER_NAME,ENTITY_NAME in a separat efile with summary as suffix in the file name
+
+Google 
+This event type is designed to monitor details of requests made from various Salesforce APIs, including: 
+Platform SOAP API
+Platform REST API
+Bulk API 
+
+
+
+Salesforce Platform API Versions 21.0 through 30.0 Retirement
+
+hese API versions will be retired. Applications that consume the versions will be disrupted because calls fail and
+ respond with an error that the requested endpoint is not found and can’t be processed by the platform. Below are the errors:
+
+REST API returns 410: GONE.
+SOAP API returns 500: UNSUPPORTED_API_VERSION.
+Bulk API returns 400: InvalidVersion.
+& C:/tools/fb-python/fb-python312/python.exe c:/Muneesh/SFDXSetup/MBMeta/MB_MonitorLogFiles.py
+
+
+This retirement affects any code, package, application, or integration executing a request
+ of versions 21.0 through 30.0 SOAP, REST, or Bulk API.  
+ 
+"API","Api Total Usage", "Rest API","Apex Callout", "Apex Execution", "Apex REST API","Apex SOAP","Bulk API","Bulk API 2.0", "Bulk API Request"
+ 
+ DOES NOT IMPACT
+ The API versions of Apex Classes, Apex Triggers, Visualforce Pages, Flows, and Process Builders
+The out-of-the-box B2B Classic/Visualforce product
+Versioned metadata components in a managed package
+Custom Apex REST & SOAP Web Services (A custom Apex web service is a way to make an Apex class method callable as a 
+public API. You can learn more about Apex Web Services here: Apex Web Services) 
+
+BULK API Request has API Version Details
+APEX REST API NO API VERSION DETAILS
+
+
+Event Monitoring  Event Type  API
+
+API Verison 21 Method  get_user_info    Facebook Integration
+
+MB_MonitorLogFiles.py is ready I used it for API.
+
+No records found for Api Total Usage
+No records found for Rest API
+No records found for Apex Callout
+No records found for Apex Execution
+No records found for Apex REST API
+No records found for Apex SOAP
+No records found for Bulk API
+No records found for Bulk API 2.0
+No records found for Bulk API Request
+

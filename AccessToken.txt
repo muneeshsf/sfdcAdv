@@ -1,0 +1,8 @@
+curl -X GET \
+  https://yourinstance.my.salesforce.com/services/data/v63.0/sobjects/EventLogFile/0ATKj000005biUtOAI/LogFile \
+  -H 'Authorization: Bearer your_access_token' \
+  -o log_file.csv
+  
+  
+  Access token  00DA0000000K9kF!AQYAQOvZMTWF9njVgu7aFLf2e7V_bfcAVg.EwLmezt7TzSMxKtczHq.zESlYuK9G6shv67SPHKoJu1woZ516pRz.klN.cbIE 
+  
