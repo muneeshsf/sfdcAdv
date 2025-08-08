@@ -1,0 +1,6 @@
+Closed/Won
+Closed/Lost
+Dead/Lost
+Lost/Closed
+
+findstr /m /L /i /g:sample.txt "C:\Muneesh\SFDXSetup\MBMeta\force-app\main\default\classes\*"

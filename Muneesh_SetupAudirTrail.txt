@@ -1,0 +1,59 @@
+String instanceUrl = System.Url.getOrgDomainUrl().toExternalForm();
+String sessionId = UserInfo.getSessionId();
+
+// Step 1: Build REST API query for SetupAuditTrail
+String query = 'SELECT Action, CreatedDate, CreatedBy.Name, Section, Display FROM SetupAuditTrail WHERE CreatedBy.Name = \'Sumana Thaduri\' ORDER BY CreatedDate DESC LIMIT 2000';
+String encodedQuery = EncodingUtil.urlEncode(query, 'UTF-8');
+String endpoint = instanceUrl + '/services/data/v62.0/query?q=' + encodedQuery;
+
+// Step 2: Prepare HTTP request
+HttpRequest req = new HttpRequest();
+req.setEndpoint(endpoint);
+req.setMethod('GET');
+req.setHeader('Authorization', 'Bearer ' + sessionId);
+req.setHeader('Content-Type', 'application/json');
+req.setTimeout(120000); // 
+Http http = new Http();
+HttpResponse res = http.send(req);
+
+if (res.getStatusCode() == 200) {
+    // Step 3: Parse JSON response
+    Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+    List<Object> records = (List<Object>) responseMap.get('records');
+
+    // Step 4: Build CSV content
+    String csv = 'Action,Created Date,User Name,Section,Display\n';
+
+    for (Object recordObj : records) {
+        Map<String, Object> record = (Map<String, Object>) recordObj;
+
+        String action = (String) record.get('Action');
+        String createdDate = (String) record.get('CreatedDate');
+        Map<String, Object> createdBy = (Map<String, Object>) record.get('CreatedBy');
+        String userName = (String) createdBy.get('Name');
+        String section = (String) record.get('Section');
+        String display = (String) record.get('Display');
+
+        csv += '"' + action + '","' + createdDate + '","' + userName + '","' + section + '","' + display + '"\n';
+    }
+
+    // Step 5: Attach CSV to email
+    Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+    attachment.setFileName('SetupAuditTrail_Sumana_Thaduri.csv');
+    attachment.setBody(Blob.valueOf(csv));
+    attachment.setContentType('text/csv');
+
+    // Step 6: Send email
+    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    mail.setToAddresses(new String[] { 'bhallamuneesh@meta.com' }); // Replace if needed
+    mail.setSubject('Setup Audit Trail Entries for Sumana Thaduri');
+    mail.setPlainTextBody('Attached is the Setup Audit Trail report for Sumana Thaduri.');
+    mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+
+    Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+
+    System.debug('✅ Audit trail CSV email sent successfully.');
+
+} else {
+    System.debug('❌ Error calling REST API. Status: ' + res.getStatusCode() + ' - ' + res.getBody());
+}

@@ -1,0 +1,112 @@
+public class InactivePslUser {
+    public String pslName;
+    public String userName;
+    public String userEmail;
+    public Boolean isActive;
+    public String profileName;
+    public Datetime lastLogin;
+
+    public InactivePslUser(String pslName, String userName, String userEmail, Boolean isActive, String profileName, Datetime lastLogin) {
+        this.pslName = pslName;
+        this.userName = userName;
+        this.userEmail = userEmail;
+        this.isActive = isActive;
+        this.profileName = profileName;
+        this.lastLogin = lastLogin;
+    }
+}
+
+// Step 1: Query all PSL assignments where user is inactive
+List<PermissionSetLicenseAssign> assignments = [
+    SELECT AssigneeId, PermissionSetLicenseId
+    FROM PermissionSetLicenseAssign
+    WHERE Assignee.IsActive = FALSE
+];
+
+// Step 2: Collect User and PSL IDs
+Set<Id> userIds = new Set<Id>();
+Set<Id> pslIds = new Set<Id>();
+for (PermissionSetLicenseAssign a : assignments) {
+    userIds.add(a.AssigneeId);
+    pslIds.add(a.PermissionSetLicenseId);
+}
+
+// Step 3: Bulk fetch Users and PSLs
+Map<Id, User> userMap = new Map<Id, User>(
+    [SELECT Id, Name, Email, IsActive, Profile.Name, LastLoginDate FROM User WHERE Id IN :userIds]
+);
+Map<Id, PermissionSetLicense> pslMap = new Map<Id, PermissionSetLicense>(
+    [SELECT Id, MasterLabel FROM PermissionSetLicense WHERE Id IN :pslIds]
+);
+
+// Step 4: Create data rows + summary maps
+List<InactivePslUser> rows = new List<InactivePslUser>();
+Map<String, Integer> summaryByPsl = new Map<String, Integer>();
+Map<String, Integer> summaryByProfile = new Map<String, Integer>();
+
+for (PermissionSetLicenseAssign a : assignments) {
+    User u = userMap.get(a.AssigneeId);
+    PermissionSetLicense psl = pslMap.get(a.PermissionSetLicenseId);
+    if (u != null && psl != null) {
+        String pslName = psl.MasterLabel;
+        String profileName = (u.Profile != null ? u.Profile.Name : 'N/A');
+        rows.add(new InactivePslUser(pslName, u.Name, u.Email, u.IsActive, profileName, u.LastLoginDate));
+
+        summaryByPsl.put(pslName, summaryByPsl.containsKey(pslName) ? summaryByPsl.get(pslName) + 1 : 1);
+        summaryByProfile.put(profileName, summaryByProfile.containsKey(profileName) ? summaryByProfile.get(profileName) + 1 : 1);
+    }
+}
+
+// Step 5: Create HTML summary
+String htmlBody = '<html><body>';
+htmlBody += '<h2>Inactive Users Assigned to Permission Set Licenses</h2>';
+
+if (rows.isEmpty()) {
+    htmlBody += '<p>No inactive users found with PSL assignments.</p>';
+} else {
+    // Summary by PSL
+    htmlBody += '<h3>Summary by Permission Set License</h3>';
+    htmlBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
+    htmlBody += '<tr style="background-color:#dddddd;font-weight:bold;">'
+             + '<th>Permission Set License</th><th>Inactive User Count</th></tr>';
+    for (String pslName : summaryByPsl.keySet()) {
+        htmlBody += '<tr><td>' + pslName + '</td><td>' + String.valueOf(summaryByPsl.get(pslName)) + '</td></tr>';
+    }
+    htmlBody += '</table><br/>';
+
+    // Summary by Profile
+    htmlBody += '<h3>Summary by Profile</h3>';
+    htmlBody += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
+    htmlBody += '<tr style="background-color:#dddddd;font-weight:bold;">'
+             + '<th>Profile</th><th>Inactive User Count</th></tr>';
+    for (String profileName : summaryByProfile.keySet()) {
+        htmlBody += '<tr><td>' + profileName + '</td><td>' + String.valueOf(summaryByProfile.get(profileName)) + '</td></tr>';
+    }
+    htmlBody += '</table>';
+}
+
+htmlBody += '<br/><i>Generated on ' + String.valueOf(Datetime.now()) + '</i></body></html>';
+
+// Step 6: Build CSV
+String csv = 'Permission Set License,User Name,Email,Is Active,Profile,Last Login Date\n';
+for (InactivePslUser row : rows) {
+    csv += '"' + row.pslName + '","' + row.userName + '","' + row.userEmail + '","'
+        + String.valueOf(row.isActive) + '","' + row.profileName + '","'
+        + (row.lastLogin != null ? row.lastLogin.format() : 'N/A') + '"\n';
+}
+
+// Step 7: Create CSV Attachment
+Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+attachment.setFileName('Inactive_PSL_Users_Report.csv');
+attachment.setBody(Blob.valueOf(csv));
+attachment.setContentType('text/csv');
+
+// Step 8: Send email
+Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+mail.setToAddresses(new String[] { 'bhallamuneesh@meta.com' }); // Change as needed
+mail.setSubject('Inactive PSL Users Report with Summary by Profile and License');
+mail.setHtmlBody(htmlBody);
+mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
+Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+
+System.debug('✅ Inactive PSL user report with profile & license summary sent.');
