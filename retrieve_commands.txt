@@ -1,0 +1,48 @@
+# Command 1:
+sf project retrieve start -m ApexClass:* -o metaprod
+
+# Command 2:
+sf project retrieve start -m ApexTrigger:* -o metaprod
+
+# Command 3:
+sf project retrieve start -m ApexPage:* -o metaprod
+
+# Command 4:
+sf project retrieve start -m AuraDefinitionBundle:* -o metaprod
+
+# Command 5:
+sf project retrieve start -m LightningComponentBundle:* -o metaprod
+
+# Command 6:
+sf project retrieve start -m Flow:* -o metaprod
+
+# Command 7:
+sf project retrieve start -m NamedCredential:* -o metaprod
+
+# Command 8:
+sf project retrieve start -m CustomObject:* -o metaprod
+
+# Command 9:
+sf project retrieve start -m CustomField:* -o metaprod
+
+# Command 10:
+sf project retrieve start -m CustomLabel:* -o metaprod
+
+# Command 11:
+sf project retrieve start -m Layout:* -o metaprod
+
+# Command 12:
+sf project retrieve start -m Profile:* -o metaprod
+
+# Command 13:
+sf project retrieve start -m PermissionSet:* -o metaprod
+
+# Command 14:
+sf project retrieve start -m ReportType:* -o metaprod
+
+# Command 15:
+sf project retrieve start -m Dashboard:* -o metaprod
+
+# Command 16:
+sf project retrieve start -m Report:* -o metaprod
+
