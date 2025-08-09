@@ -1,0 +1,46 @@
+Sub ExtractAssignedApprovers()
+    Dim folderPath As String, fileName As String
+    Dim xDoc As Object, approverNode As Object, approverList As String
+    Dim ws As Worksheet, rowNum As Long, node As Object
+    Dim approverNameNodes As Object, nameNode As Object
+
+    ' Ask user for folder
+    folderPath = InputBox("Enter the full folder path containing .approvalProcess XML files:", "Folder Path")
+    If Right(folderPath, 1) <> "\" Then folderPath = folderPath & "\"
+
+    ' Create output sheet
+    Set ws = Sheets.Add
+    ws.Name = "Approver Report"
+    ws.Cells(1, 1).Value = "Approval Process Name"
+    ws.Cells(1, 2).Value = "Assigned Approvers"
+    rowNum = 2
+
+    ' Loop through all XML files
+    fileName = Dir(folderPath & "*.approvalProcess")
+    Do While fileName <> ""
+        Set xDoc = CreateObject("MSXML2.DOMDocument.6.0")
+        xDoc.async = False
+        xDoc.Load folderPath & fileName
+
+        If xDoc.ParseError.ErrorCode = 0 Then
+            Set approverNameNodes = xDoc.SelectNodes("//*[local-name()='assignedApprover']/*[local-name()='approver']/*[local-name()='name']")
+            approverList = ""
+            For Each nameNode In approverNameNodes
+                approverList = approverList & nameNode.Text & "; "
+            Next nameNode
+
+            If Len(approverList) > 2 Then approverList = Left(approverList, Len(approverList) - 2)
+
+            ws.Cells(rowNum, 1).Value = Replace(fileName, ".approvalProcess", "")
+            ws.Cells(rowNum, 2).Value = IIf(approverList <> "", approverList, "Not Found")
+            rowNum = rowNum + 1
+        Else
+            MsgBox "Error in file: " & fileName
+        End If
+
+        fileName = Dir
+    Loop
+
+    MsgBox "? Extraction Complete! Check the 'Approver Report' sheet."
+End Sub
+
